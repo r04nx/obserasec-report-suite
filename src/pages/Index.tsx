@@ -1,3 +1,5 @@
+import React from "react";
+import { useSearchParams } from "react-router-dom";
 import CoverPage from "@/components/report/CoverPage";
 import DocumentControl from "@/components/report/DocumentControl";
 import TableOfContents from "@/components/report/TableOfContents";
@@ -12,11 +14,82 @@ import ComplianceMapping from "@/components/report/ComplianceMapping";
 import HostSummary from "@/components/report/HostSummary";
 import RemediationRoadmap from "@/components/report/RemediationRoadmap";
 import Appendices from "@/components/report/Appendices";
+import ComplianceDPDP from "@/components/report/templates/ComplianceDPDP";
+import ComplianceCERTIn from "@/components/report/templates/ComplianceCERTIn";
+import ComplianceBFSI from "@/components/report/templates/ComplianceBFSI";
 import BackCover from "@/components/report/BackCover";
 
 const Index = () => {
   const handleExportPDF = () => {
     window.print();
+  };
+
+  /* New logic for report type selection */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [searchParams] = useSearchParams();
+  const reportType = searchParams.get("type") || "full";
+
+  const renderContent = () => {
+    switch (reportType) {
+      case "dpdp":
+        return (
+          <>
+            <CoverPage />
+            <DocumentControl />
+            <TableOfContents />
+            <ExecutiveSummary />
+            <ComplianceDPDP />
+            <BackCover />
+          </>
+        );
+      case "certin":
+        return (
+          <>
+            <CoverPage />
+            <DocumentControl />
+            <TableOfContents />
+            <ExecutiveSummary />
+            <ComplianceCERTIn />
+            <BackCover />
+          </>
+        );
+      case "bfsi":
+        return (
+          <>
+            <CoverPage />
+            <DocumentControl />
+            <TableOfContents />
+            <ExecutiveSummary />
+            <ComplianceBFSI />
+            <BackCover />
+          </>
+        );
+      default: // "full"
+        return (
+          <>
+            <CoverPage />
+            <DocumentControl />
+            <TableOfContents />
+            <ExecutiveSummary />
+            <ScopeMethodology />
+            <RiskDashboard />
+            <NetworkArchitecture />
+            <GeoThreatIntel />
+            <DetailedFindings />
+            <VulnTrending />
+            <ComplianceMapping />
+            <HostSummary />
+            <RemediationRoadmap />
+            <Appendices />
+            <div className="page-break" />
+            <div className="section-header p-10 font-bold text-2xl">Compliance Templates</div>
+            <ComplianceDPDP />
+            <ComplianceCERTIn />
+            <ComplianceBFSI />
+            <BackCover />
+          </>
+        );
+    }
   };
 
   return (
@@ -35,22 +108,8 @@ const Index = () => {
       </div>
 
       {/* Report Pages */}
-      <div className="flex flex-col items-center gap-4 py-8">
-        <CoverPage />
-        <DocumentControl />
-        <TableOfContents />
-        <ExecutiveSummary />
-        <ScopeMethodology />
-        <RiskDashboard />
-        <NetworkArchitecture />
-        <GeoThreatIntel />
-        <DetailedFindings />
-        <VulnTrending />
-        <ComplianceMapping />
-        <HostSummary />
-        <RemediationRoadmap />
-        <Appendices />
-        <BackCover />
+      <div className="report-container flex flex-col items-center gap-4 py-8">
+        {renderContent()}
       </div>
     </div>
   );

@@ -1,4 +1,5 @@
 import React from "react";
+import { reportMeta } from "@/data/reportData";
 
 interface ReportPageProps {
   children: React.ReactNode;
@@ -16,7 +17,7 @@ const ReportPage: React.FC<ReportPageProps> = ({
   children,
   pageNum,
   sectionTitle,
-  light = false,
+  light = true,
   showHeader = true,
   showFooter = true,
   showWatermark = true,
@@ -25,50 +26,55 @@ const ReportPage: React.FC<ReportPageProps> = ({
 }) => {
   return (
     <div
-      className={`a4-page page-break ${light ? "a4-page-light" : ""} ${noPadding ? "!p-0" : ""} ${className}`}
+      className={`a4-page page-break ${light ? "a4-page-light" : ""} ${className} relative`}
     >
-      {/* Geometric decorations */}
-      <div className="geo-lines" />
-      <div className="geo-dots" />
-
-      {/* Watermark */}
-      {showWatermark && <div className="watermark">CONFIDENTIAL — ObseraSEC</div>}
+      {/* ObseraSEC Logo Watermark */}
+      {showWatermark && (
+        <div className="watermark absolute inset-0 flex items-center justify-center pointer-events-none z-0">
+          <div className="opacity-[0.02] transform -rotate-45">
+            <img
+              src="https://flem.xo.je/uploads/image_1ab47d1d.png"
+              alt="Watermark"
+              className="w-[600px] grayscale"
+            />
+          </div>
+        </div>
+      )}
 
       {/* Header */}
       {showHeader && (
-        <div className="page-header">
+        <div className="page-header relative z-20">
           <div className="flex items-center gap-2">
             <img
               src="https://flem.xo.je/uploads/image_1ab47d1d.png"
               alt="ObseraSEC"
-              className="h-4 opacity-60"
-              onError={(e) => {
-                (e.target as HTMLImageElement).style.display = "none";
-              }}
+              className="h-3"
             />
-            <span className="font-mono-ibm text-[8px] uppercase tracking-wider opacity-60">
+            <span className="font-mono-ibm text-[8px] uppercase tracking-widest text-[#6b7280] font-semibold">
               ObseraSEC
             </span>
           </div>
           {sectionTitle && (
-            <span className="font-mono-ibm text-[8px] uppercase tracking-wider opacity-60">
+            <span className="font-mono-ibm text-[8px] uppercase tracking-widest text-[#9ca3af]">
               {sectionTitle}
             </span>
           )}
         </div>
       )}
 
-      {/* Content */}
-      <div className="relative z-10 mt-6">{children}</div>
+      {/* Content Area - uses 15mm top margin to avoid header overlap */}
+      <div className={`relative z-10 ${noPadding ? "" : "pt-[25mm] px-[20mm] pb-[20mm]"} h-full`}>
+        {children}
+      </div>
 
       {/* Footer */}
       {showFooter && (
-        <div className="page-footer">
-          <span className="font-mono-ibm">CONFIDENTIAL</span>
-          <span className="font-mono-ibm">
-            OSEC-2026-0142 | Network Infrastructure Security Assessment
+        <div className="page-footer relative z-20">
+          <span className="font-mono-ibm text-[8px] uppercase tracking-widest">Confidential</span>
+          <span className="font-mono-ibm text-[8px] opacity-70">
+            {reportMeta.assessmentId} | {reportMeta.subtitle}
           </span>
-          {pageNum && <span className="font-mono-ibm">Page {pageNum}</span>}
+          {pageNum && <span className="font-mono-ibm text-[8px] font-bold">Page {pageNum}</span>}
         </div>
       )}
     </div>

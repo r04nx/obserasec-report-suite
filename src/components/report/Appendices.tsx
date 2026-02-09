@@ -1,3 +1,4 @@
+import React from "react";
 import ReportPage from "./ReportPage";
 import { portScanResults, glossary } from "@/data/reportData";
 

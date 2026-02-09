@@ -1,3 +1,4 @@
+import React from "react";
 import ReportPage from "./ReportPage";
 import { networkAssets } from "@/data/reportData";
 

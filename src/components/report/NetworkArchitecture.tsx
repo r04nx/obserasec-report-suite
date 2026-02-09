@@ -1,3 +1,4 @@
+import React from "react";
 import ReportPage from "./ReportPage";
 import { networkAssets, subnets } from "@/data/reportData";
 
@@ -26,8 +27,8 @@ const NetworkArchitecture = () => (
       </div>
 
       <p className="text-xs text-muted-foreground mb-6 leading-relaxed">
-        The assessed network infrastructure spans five primary network segments across the headquarters 
-        and one branch office. The architecture follows a traditional three-tier model with core, 
+        The assessed network infrastructure spans five primary network segments across the headquarters
+        and one branch office. The architecture follows a traditional three-tier model with core,
         distribution, and access layers, supplemented by a DMZ for public-facing services.
       </p>
 

@@ -1,107 +1,157 @@
-import { reportMeta } from "@/data/reportData";
+import React from "react";
+// import { reportMeta } from "@/data/reportData";
+
+const reportMeta = {
+  client: "Acme Corporation Ltd.",
+  date: "9 February, 2026",
+  assessmentId: "OSEC-2026-0142",
+};
 
 const CoverPage = () => {
+  // Debug log to check if reportMeta is available
+  console.log("CoverPage rendering. reportMeta:", reportMeta);
+
+  if (!reportMeta) {
+    console.error("reportMeta is undefined or null!");
+    return <div className="text-red-500">Error: reportMeta missing</div>;
+  }
+
   return (
-    <div className="a4-page !p-0 page-break relative overflow-hidden">
-      {/* Cover background image */}
-      <div
-        className="absolute inset-0 bg-cover bg-center"
-        style={{
-          backgroundImage: `url(https://flem.xo.je/uploads/cover-page-template_869a6c69.png)`,
-        }}
-      />
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@400;600&display=swap');
 
-      {/* Fallback gradient if image doesn't load */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#0A1628] via-[#0d1f3c] to-[#061020]" style={{ zIndex: 0 }} />
+        .raw-cover-page {
+            width: 210mm;
+            height: 297mm;
+            background-image: url('/assets/cover_bg.png');
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            overflow: hidden;
+            margin: 0; 
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
 
-      {/* Geometric overlay pattern */}
-      <div className="absolute inset-0" style={{ zIndex: 1 }}>
-        <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-[#00D4FF]/5 to-transparent" />
-        <svg className="absolute bottom-0 left-0 w-full h-48 opacity-10" viewBox="0 0 800 200">
-          <defs>
-            <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#00D4FF" strokeWidth="0.5" />
-            </pattern>
-          </defs>
-          <rect width="800" height="200" fill="url(#grid)" />
+        .issued-in {
+            position: absolute;
+            top: 123px;
+            right: 20px;
+            text-align: right;
+            font-family: 'IBM Plex Sans Condensed', sans-serif;
+            font-size: 14pt;
+            color: rgba(0, 0, 0, 0.4);
+            z-index: 20;
+        }
+
+        .title-container {
+            position: absolute;
+            top: 270px;
+            left: 50px;
+            width: 90%;
+            z-index: 20;
+            text-align: left;
+        }
+
+        .report-title {
+            font-family: Arial, sans-serif;
+            font-size: 51pt;
+            font-weight: bold;
+            color: #ffffff;
+            line-height: 1;
+            margin: 0;
+            letter-spacing: -1.5px;
+            /* Template HTML does not force uppercase, but Title Case. 
+               However, to match the visual provided in the template HTML (which has Title Case text), 
+               we will render the client name as is. */
+        }
+
+        .title-date {
+            font-family: Arial, sans-serif;
+            font-size: 48pt;
+            font-weight: bold;
+            color: #44AC96;
+            margin-top: 10px;
+            letter-spacing: -1px;
+        }
+
+        .assessment-label {
+            margin-top: 30px;
+            display: flex;
+            align-items: flex-end;
+            font-family: 'IBM Plex Sans Condensed', sans-serif;
+            text-transform: uppercase;
+            font-size: 13pt;
+            letter-spacing: 1px;
+            line-height: 1;
+        }
+
+        .faint-text {
+            color: rgba(255, 255, 255, 0.4);
+            margin-right: 8px;
+        }
+
+        .main-text {
+            color: #ffffff;
+        }
+
+        .accent-line {
+            height: 2px;
+            background: #44AC96;
+            flex-grow: 1;
+            margin-left: 6px;
+            max-width: 120px;
+            margin-bottom: 3px;
+        }
+
+        .doc-id {
+            position: absolute;
+            bottom: 40px;
+            right: 65px;
+            font-family: 'IBM Plex Sans Condensed', sans-serif;
+            font-size: 10pt;
+            color: #6b7280;
+            opacity: 0.8;
+            z-index: 20;
+        }
+      `}</style>
+
+      <div className="raw-cover-page page-break">
+        <div className="issued-in">
+          <span className="issued-label"></span> {reportMeta.date}
+        </div>
+
+        {/* Minimal Curves - Even more subtle */}
+        <svg className="absolute top-0 right-0 w-[500px] h-[500px] opacity-[0.02] pointer-events-none" viewBox="0 0 500 500">
+          <path d="M 500 0 C 400 50 100 150 0 500" fill="none" stroke="white" strokeWidth="1" />
         </svg>
-        {/* Diagonal accent lines */}
-        <div className="absolute top-20 right-20 w-48 h-48">
-          {[...Array(6)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute h-[1px] w-32 bg-gradient-to-r from-[#00D4FF]/40 to-transparent"
-              style={{
-                top: `${i * 16}px`,
-                right: 0,
-                transform: "rotate(-45deg)",
-                transformOrigin: "right center",
-              }}
-            />
-          ))}
+
+
+        <div className="title-container">
+          <h1 className="report-title">{reportMeta.client}</h1>
+          <div className="title-date">{reportMeta.date}</div>
+
+          <div className="assessment-label">
+            <span className="faint-text">Security</span>
+            <span className="main-text">Assessment Report</span>
+            <div className="accent-line"></div>
+          </div>
+          <div className="assessment-label" style={{ marginTop: '10px' }}>
+            <span className="faint-text">DPDP</span>
+            <span className="main-text">Compliance Report</span>
+            <div className="accent-line"></div>
+          </div>
+        </div>
+
+        <div className="doc-id">
+          ID: {reportMeta.assessmentId}
         </div>
       </div>
-
-      {/* Content overlay */}
-      <div className="relative z-10 flex flex-col h-full min-h-[297mm] p-16">
-        {/* Logo */}
-        <div className="mb-auto">
-          <img
-            src="https://flem.xo.je/uploads/image_1ab47d1d.png"
-            alt="ObseraSEC"
-            className="h-12"
-            onError={(e) => {
-              const el = e.target as HTMLImageElement;
-              el.style.display = "none";
-              el.parentElement!.innerHTML = `<div class="text-2xl font-bold text-[#00D4FF] tracking-widest">ObseraSEC</div>`;
-            }}
-          />
-          <div className="mt-1 text-[10px] font-mono-ibm text-[#00D4FF]/60 tracking-[0.3em] uppercase">
-            Powered by ObseraOne
-          </div>
-        </div>
-
-        {/* Title */}
-        <div className="mb-auto">
-          <div className="w-16 h-[3px] bg-[#00D4FF] mb-8" />
-          <h1 className="text-4xl font-bold text-white leading-tight mb-4 tracking-tight">
-            Network Infrastructure<br />
-            <span className="text-[#00D4FF]">Security Assessment</span>
-          </h1>
-          <p className="text-lg text-white/70 font-light">{reportMeta.subtitle}</p>
-        </div>
-
-        {/* Details */}
-        <div className="space-y-4">
-          <div className="flex items-center gap-3 text-white/80 text-sm">
-            <span className="text-[#00D4FF] font-mono-ibm text-xs uppercase tracking-wider w-24">Client</span>
-            <span>{reportMeta.client}</span>
-          </div>
-          <div className="flex items-center gap-3 text-white/80 text-sm">
-            <span className="text-[#00D4FF] font-mono-ibm text-xs uppercase tracking-wider w-24">Date</span>
-            <span>{reportMeta.date}</span>
-          </div>
-          <div className="flex items-center gap-3 text-white/80 text-sm">
-            <span className="text-[#00D4FF] font-mono-ibm text-xs uppercase tracking-wider w-24">Report ID</span>
-            <span className="font-mono-ibm">{reportMeta.assessmentId}</span>
-          </div>
-          <div className="flex items-center gap-3 text-white/80 text-sm">
-            <span className="text-[#00D4FF] font-mono-ibm text-xs uppercase tracking-wider w-24">Version</span>
-            <span>{reportMeta.version}</span>
-          </div>
-
-          {/* Classification badge */}
-          <div className="mt-6 pt-6 border-t border-white/10">
-            <div className="inline-flex items-center gap-2 px-4 py-2 border border-[#FF4444]/40 bg-[#FF4444]/10 rounded">
-              <div className="w-2 h-2 rounded-full bg-[#FF4444] animate-pulse" />
-              <span className="text-[#FF4444] font-mono-ibm text-xs tracking-wider uppercase">
-                {reportMeta.classification}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    </>
   );
 };
 

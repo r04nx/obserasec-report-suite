@@ -13,6 +13,10 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        "mono-ibm": ["'IBM Plex Sans Condensed'", "sans-serif"],
+        "mono-jb": ["'IBM Plex Mono'", "monospace"],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

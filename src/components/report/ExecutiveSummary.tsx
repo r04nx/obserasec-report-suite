@@ -1,8 +1,6 @@
+import React from "react";
 import ReportPage from "./ReportPage";
 import { executiveSummary, severityDistribution } from "@/data/reportData";
-import {
-  PieChart, Pie, Cell, ResponsiveContainer, Tooltip,
-} from "recharts";
 
 const MetricCard = ({ label, value, color }: { label: string; value: number; color: string }) => (
   <div className="p-4 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--obsera-surface))] text-center">
@@ -16,7 +14,7 @@ const ExecutiveSummary = () => {
 
   return (
     <>
-      <ReportPage pageNum={4} sectionTitle="Executive Summary">
+      <ReportPage pageNum={4} sectionTitle="Executive Summary" light={true}>
         {/* Header image */}
         <div className="w-full h-32 rounded-lg overflow-hidden mb-6 relative">
           <img
@@ -90,39 +88,28 @@ const ExecutiveSummary = () => {
         </div>
       </ReportPage>
 
-      <ReportPage pageNum={5} sectionTitle="Executive Summary">
-        {/* Severity Distribution Pie */}
+      <ReportPage pageNum={5} sectionTitle="Executive Summary" light={true}>
+        {/* Severity Distribution Pie - CSS Conic Gradient */}
         <h3 className="text-sm font-bold text-foreground/80 uppercase tracking-wider mb-4 section-accent">
           Vulnerability Distribution by Severity
         </h3>
         <div className="flex items-center gap-6 mb-8">
-          <div className="w-56 h-56">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={severityDistribution}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={50}
-                  outerRadius={80}
-                  paddingAngle={3}
-                  dataKey="value"
-                  stroke="none"
-                >
-                  {severityDistribution.map((entry, index) => (
-                    <Cell key={index} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  contentStyle={{
-                    background: "#0A1628",
-                    border: "1px solid hsl(190, 100%, 50%)",
-                    borderRadius: "8px",
-                    fontSize: "11px",
-                  }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
+          <div className="w-56 h-56 flex items-center justify-center">
+            <div
+              className="w-40 h-40 rounded-full relative"
+              style={{
+                background: `conic-gradient(
+                     ${severityDistribution[0].color} 0% ${(severityDistribution[0].value / totalVulnerabilities) * 100}%, 
+                     ${severityDistribution[1].color} ${(severityDistribution[0].value / totalVulnerabilities) * 100}% ${((severityDistribution[0].value + severityDistribution[1].value) / totalVulnerabilities) * 100}%, 
+                     ${severityDistribution[2].color} ${((severityDistribution[0].value + severityDistribution[1].value) / totalVulnerabilities) * 100}% ${((severityDistribution[0].value + severityDistribution[1].value + severityDistribution[2].value) / totalVulnerabilities) * 100}%,
+                     ${severityDistribution[3].color} ${((severityDistribution[0].value + severityDistribution[1].value + severityDistribution[2].value) / totalVulnerabilities) * 100}% 100%
+                  )`
+              }}
+            >
+              <div className="absolute inset-0 m-8 bg-white rounded-full flex items-center justify-center">
+                <span className="text-sm font-bold text-muted-foreground">Severity</span>
+              </div>
+            </div>
           </div>
           <div className="space-y-2">
             {severityDistribution.map((s) => (

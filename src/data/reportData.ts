@@ -68,6 +68,9 @@ export const tocSections = [
   { num: "11.1", title: "Port Scan Results", page: 44 },
   { num: "11.2", title: "Glossary", page: 46 },
   { num: "11.3", title: "CVSS Methodology", page: 47 },
+  { num: "12", title: "Data Privacy (DPDP 2023)", page: 48 },
+  { num: "13", title: "InfoSec Audit (CERT-In)", page: 49 },
+  { num: "14", title: "Regulatory (RBI/SEBI)", page: 50 },
 ];
 
 export const executiveSummary = {

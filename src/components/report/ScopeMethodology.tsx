@@ -1,6 +1,6 @@
+import React from "react";
 import ReportPage from "./ReportPage";
 import { scopeData } from "@/data/reportData";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 
 const ScopeMethodology = () => {
   const timelineData = scopeData.timeline.map((t) => ({
@@ -20,7 +20,7 @@ const ScopeMethodology = () => {
 
   return (
     <>
-      <ReportPage pageNum={7} sectionTitle="Scope & Methodology">
+      <ReportPage pageNum={7} sectionTitle="Scope & Methodology" light={true}>
         <h2 className="text-2xl font-bold text-[hsl(var(--obsera-cyan))] mb-6 section-accent">
           Scope & Methodology
         </h2>
@@ -76,7 +76,7 @@ const ScopeMethodology = () => {
         </div>
       </ReportPage>
 
-      <ReportPage pageNum={8} sectionTitle="Scope & Methodology">
+      <ReportPage pageNum={8} sectionTitle="Scope & Methodology" light={true}>
         {/* Tools Table */}
         <h3 className="text-sm font-bold text-foreground/80 uppercase tracking-wider mb-3 section-accent">
           Tools Used
@@ -96,27 +96,33 @@ const ScopeMethodology = () => {
           </tbody>
         </table>
 
-        {/* Timeline Bar Chart */}
+        {/* Timeline Bar Chart - CSS Horizontal Bar */}
         <h3 className="text-sm font-bold text-foreground/80 uppercase tracking-wider mb-3 section-accent">
           Testing Timeline (Days)
         </h3>
-        <div className="h-48 bg-[hsl(var(--obsera-surface))] rounded-lg p-4 border border-[hsl(var(--border))]">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={timelineData} layout="vertical" barCategoryGap="20%">
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(216, 30%, 20%)" />
-              <XAxis type="number" tick={{ fill: "hsl(210, 20%, 60%)", fontSize: 10 }} domain={[0, 22]} />
-              <YAxis type="category" dataKey="name" tick={{ fill: "hsl(210, 20%, 60%)", fontSize: 10 }} width={100} />
-              <Tooltip
-                contentStyle={{
-                  background: "#0A1628",
-                  border: "1px solid hsl(190, 100%, 50%)",
-                  borderRadius: "8px",
-                  fontSize: "11px",
-                }}
-              />
-              <Bar dataKey="duration" fill="hsl(190, 100%, 50%)" radius={[0, 4, 4, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
+        <div className="h-48 bg-[hsl(var(--obsera-surface))] rounded-lg p-6 border border-[hsl(var(--border))]">
+          <div className="flex flex-col justify-center h-full gap-3">
+            {timelineData.map((item, i) => {
+              const maxDuration = Math.max(...timelineData.map(t => t.duration));
+              const width = (item.duration / 22) * 100; // Domain is 0-22 based on previous chart
+              return (
+                <div key={i} className="flex items-center gap-2 group w-full">
+                  <div className="w-24 text-[10px] font-bold text-muted-foreground text-right truncate">{item.name}</div>
+                  <div className="flex-1 bg-slate-100 rounded-r-sm h-6 relative overflow-hidden">
+                    <div
+                      className="h-full bg-[hsl(190,100%,50%)] absolute left-0 top-0 opacity-80 hover:opacity-100 transition-all flex items-center px-2"
+                      style={{
+                        width: `${width}%`,
+                        // Start offset could be simulated if we had absolute start dates, but duration bar is fine for now
+                      }}
+                    >
+                      <span className="text-[9px] font-bold text-[#0A1628]">{item.duration}d</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </ReportPage>
     </>

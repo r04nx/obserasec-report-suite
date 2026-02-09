@@ -1,19 +1,8 @@
+import React from "react";
 import ReportPage from "./ReportPage";
 import {
-  vulnByCategory, riskTrend, severityDistribution, vulnByHost, riskMatrix,
+  vulnByCategory, riskTrend, vulnByHost, riskMatrix,
 } from "@/data/reportData";
-import {
-  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
-  LineChart, Line, PieChart, Pie, Cell, Legend,
-} from "recharts";
-
-const chartTooltipStyle = {
-  background: "#0A1628",
-  border: "1px solid hsl(190, 100%, 50%)",
-  borderRadius: "8px",
-  fontSize: "11px",
-  color: "#fff",
-};
 
 const riskCellColor: Record<string, string> = {
   C: "bg-[hsl(0,84%,60%)] text-white",
@@ -24,63 +13,83 @@ const riskCellColor: Record<string, string> = {
 
 const RiskDashboard = () => (
   <>
-    <ReportPage pageNum={9} sectionTitle="Risk Summary Dashboard">
+    <ReportPage pageNum={9} sectionTitle="Risk Summary Dashboard" light={true}>
       <h2 className="text-2xl font-bold text-[hsl(var(--obsera-cyan))] mb-6 section-accent">
         Risk Summary Dashboard
       </h2>
 
-      {/* Vuln by Category Bar Chart */}
+      {/* Vuln by Category Bar Chart - CSS Version */}
       <h3 className="text-sm font-bold text-foreground/80 uppercase tracking-wider mb-3">
         Vulnerabilities by Category
       </h3>
-      <div className="h-56 bg-[hsl(var(--obsera-surface))] rounded-lg p-4 border border-[hsl(var(--border))] mb-6">
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={vulnByCategory}>
-            <CartesianGrid strokeDasharray="3 3" stroke="hsl(216, 30%, 20%)" />
-            <XAxis dataKey="category" tick={{ fill: "hsl(210, 20%, 60%)", fontSize: 9 }} />
-            <YAxis tick={{ fill: "hsl(210, 20%, 60%)", fontSize: 10 }} />
-            <Tooltip contentStyle={chartTooltipStyle} />
-            <Bar dataKey="count" fill="hsl(190, 100%, 50%)" radius={[4, 4, 0, 0]} />
-          </BarChart>
-        </ResponsiveContainer>
+      <div className="h-56 bg-[hsl(var(--obsera-surface))] rounded-lg p-6 border border-[hsl(var(--border))] mb-6">
+        <div className="flex items-end justify-between h-full gap-4">
+          {vulnByCategory.map((item, i) => {
+            const maxVal = Math.max(...vulnByCategory.map(v => v.count));
+            const height = (item.count / maxVal) * 100;
+            return (
+              <div key={i} className="flex-1 flex flex-col items-center gap-2 group h-full justify-end">
+                <div className="text-xs font-bold text-muted-foreground mb-1">{item.count}</div>
+                <div
+                  className="w-full bg-[hsl(190,100%,50%)] rounded-t-sm transition-all hover:bg-[hsl(190,100%,60%)]"
+                  style={{ height: `${height}%` }}
+                ></div>
+                <div className="text-[9px] text-muted-foreground text-center line-clamp-2 h-6">{item.category}</div>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
-      {/* Risk Trend Line */}
+      {/* Risk Trend Line - Approximated as Bars */}
       <h3 className="text-sm font-bold text-foreground/80 uppercase tracking-wider mb-3">
         Risk Trend Over Time
       </h3>
-      <div className="h-48 bg-[hsl(var(--obsera-surface))] rounded-lg p-4 border border-[hsl(var(--border))]">
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={riskTrend}>
-            <CartesianGrid strokeDasharray="3 3" stroke="hsl(216, 30%, 20%)" />
-            <XAxis dataKey="month" tick={{ fill: "hsl(210, 20%, 60%)", fontSize: 10 }} />
-            <YAxis domain={[0, 10]} tick={{ fill: "hsl(210, 20%, 60%)", fontSize: 10 }} />
-            <Tooltip contentStyle={chartTooltipStyle} />
-            <Line type="monotone" dataKey="score" stroke="hsl(0, 84%, 60%)" strokeWidth={2} dot={{ fill: "hsl(0, 84%, 60%)", r: 4 }} />
-          </LineChart>
-        </ResponsiveContainer>
+      <div className="h-48 bg-[hsl(var(--obsera-surface))] rounded-lg p-6 border border-[hsl(var(--border))]">
+        <div className="flex items-end justify-between h-full gap-2">
+          {riskTrend.map((item, i) => {
+            const height = (item.score / 10) * 100;
+            return (
+              <div key={i} className="flex-1 flex flex-col items-center gap-2 group h-full justify-end">
+                <div className="text-xs font-bold text-[hsl(0,84%,60%)] mb-1">{item.score}</div>
+                <div className="w-full flex items-center justify-center relative h-full">
+                  <div className="absolute bottom-0 w-0.5 bg-[hsl(0,84%,60%)] h-full opacity-20"></div>
+                  <div className="w-2 h-2 rounded-full bg-[hsl(0,84%,60%)] z-10" style={{ marginBottom: `${height}%` }}></div>
+                  <div className="absolute bottom-0 w-full border-t border-[hsl(0,84%,60%)] opacity-30" style={{ bottom: `${height}%` }}></div>
+                </div>
+                <div className="text-[10px] text-muted-foreground">{item.month}</div>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </ReportPage>
 
-    <ReportPage pageNum={10} sectionTitle="Risk Summary Dashboard">
+    <ReportPage pageNum={10} sectionTitle="Risk Summary Dashboard" light={true}>
       {/* Stacked Bar by Host */}
       <h3 className="text-sm font-bold text-foreground/80 uppercase tracking-wider mb-3 section-accent">
         Findings by Host / Subnet
       </h3>
-      <div className="h-56 bg-[hsl(var(--obsera-surface))] rounded-lg p-4 border border-[hsl(var(--border))] mb-6">
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={vulnByHost}>
-            <CartesianGrid strokeDasharray="3 3" stroke="hsl(216, 30%, 20%)" />
-            <XAxis dataKey="host" tick={{ fill: "hsl(210, 20%, 60%)", fontSize: 9 }} />
-            <YAxis tick={{ fill: "hsl(210, 20%, 60%)", fontSize: 10 }} />
-            <Tooltip contentStyle={chartTooltipStyle} />
-            <Legend wrapperStyle={{ fontSize: 10 }} />
-            <Bar dataKey="critical" stackId="a" fill="hsl(0, 84%, 60%)" />
-            <Bar dataKey="high" stackId="a" fill="hsl(25, 95%, 53%)" />
-            <Bar dataKey="medium" stackId="a" fill="hsl(45, 93%, 47%)" />
-            <Bar dataKey="low" stackId="a" fill="hsl(142, 71%, 45%)" radius={[4, 4, 0, 0]} />
-          </BarChart>
-        </ResponsiveContainer>
+      <div className="h-56 bg-[hsl(var(--obsera-surface))] rounded-lg p-6 border border-[hsl(var(--border))] mb-6">
+        <div className="flex flex-col h-full gap-3 overflow-y-auto">
+          {vulnByHost.map((host, i) => {
+            const total = host.critical + host.high + host.medium + host.low;
+            return (
+              <div key={i} className="w-full">
+                <div className="flex justify-between text-[10px] mb-1">
+                  <span className="font-mono">{host.host}</span>
+                  <span className="font-bold">{total} Vulns</span>
+                </div>
+                <div className="flex h-3 w-full rounded-full overflow-hidden bg-slate-100">
+                  <div style={{ width: `${(host.critical / total) * 100}%` }} className="bg-[hsl(0,84%,60%)]"></div>
+                  <div style={{ width: `${(host.high / total) * 100}%` }} className="bg-[hsl(25,95%,53%)]"></div>
+                  <div style={{ width: `${(host.medium / total) * 100}%` }} className="bg-[hsl(45,93%,47%)]"></div>
+                  <div style={{ width: `${(host.low / total) * 100}%` }} className="bg-[hsl(142,71%,45%)]"></div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       {/* Risk Matrix */}

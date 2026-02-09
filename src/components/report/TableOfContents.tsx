@@ -1,3 +1,4 @@
+import React from "react";
 import ReportPage from "./ReportPage";
 import { tocSections } from "@/data/reportData";
 
@@ -17,11 +18,10 @@ const TableOfContents = () => {
               className={`toc-entry ${isMain ? "mt-4 first:mt-0" : "pl-6"}`}
             >
               <span
-                className={`font-mono-ibm shrink-0 ${
-                  isMain
+                className={`font-mono-ibm shrink-0 ${isMain
                     ? "text-[hsl(var(--obsera-cyan))] font-bold text-sm"
                     : "text-muted-foreground text-xs"
-                }`}
+                  }`}
               >
                 {s.num}
               </span>

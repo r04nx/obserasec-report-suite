@@ -1,3 +1,4 @@
+import React from "react";
 import ReportPage from "./ReportPage";
 import { geoData } from "@/data/reportData";
 
@@ -29,65 +30,84 @@ const GeoThreatIntel = () => (
       </div>
     </div>
 
-    {/* World Map SVG */}
+    {/* Minimal OSM Map Implementation */}
     <h3 className="text-sm font-bold text-foreground/80 uppercase tracking-wider mb-3 section-accent">
       Attack Origin Heatmap
     </h3>
-    <div className="relative bg-[hsl(var(--obsera-surface))] rounded-lg border border-[hsl(var(--border))] p-4 mb-6">
-      <svg viewBox="0 0 800 400" className="w-full h-auto">
-        {/* Simplified world map outline */}
-        <rect width="800" height="400" fill="none" />
-        {/* Grid */}
-        {[...Array(9)].map((_, i) => (
-          <line key={`h${i}`} x1="0" y1={i * 50} x2="800" y2={i * 50} stroke="hsl(216, 30%, 15%)" strokeWidth="0.5" />
-        ))}
-        {[...Array(17)].map((_, i) => (
-          <line key={`v${i}`} x1={i * 50} y1="0" x2={i * 50} y2="400" stroke="hsl(216, 30%, 15%)" strokeWidth="0.5" />
-        ))}
-        
-        {/* Continent outlines (simplified) */}
-        {/* North America */}
-        <path d="M100,80 L180,60 L220,90 L240,130 L200,180 L160,200 L130,180 L100,140 Z" 
-          fill="hsl(216, 50%, 18%)" stroke="hsl(190, 100%, 50%)" strokeWidth="0.5" opacity="0.6" />
-        {/* South America */}
-        <path d="M180,210 L220,200 L240,240 L250,300 L230,340 L200,360 L180,320 L170,260 Z" 
-          fill="hsl(216, 50%, 18%)" stroke="hsl(190, 100%, 50%)" strokeWidth="0.5" opacity="0.6" />
-        {/* Europe */}
-        <path d="M370,70 L420,60 L440,80 L430,110 L400,120 L380,110 Z" 
-          fill="hsl(216, 50%, 18%)" stroke="hsl(190, 100%, 50%)" strokeWidth="0.5" opacity="0.6" />
-        {/* Africa */}
-        <path d="M370,140 L430,130 L450,180 L440,260 L420,300 L380,290 L360,240 L360,180 Z" 
-          fill="hsl(216, 50%, 18%)" stroke="hsl(190, 100%, 50%)" strokeWidth="0.5" opacity="0.6" />
-        {/* Asia */}
-        <path d="M440,60 L580,50 L680,70 L700,120 L660,160 L600,170 L520,150 L480,130 L450,100 Z" 
-          fill="hsl(216, 50%, 18%)" stroke="hsl(190, 100%, 50%)" strokeWidth="0.5" opacity="0.6" />
-        {/* Australia */}
-        <path d="M620,280 L680,270 L720,290 L710,320 L660,330 L630,310 Z" 
-          fill="hsl(216, 50%, 18%)" stroke="hsl(190, 100%, 50%)" strokeWidth="0.5" opacity="0.6" />
+    <div className="relative bg-[hsl(var(--obsera-surface))] rounded-lg border border-[hsl(var(--border))] overflow-hidden mb-6 h-[400px]">
+      {/* Map Tiles Container */}
+      <div className="absolute inset-0 flex items-center justify-center bg-[#f8f9fa]">
+        <div className="relative w-[512px] h-[512px] opacity-40 grayscale contrast-[0.8] brightness-[1.1] scale-[1.5]">
+          {/* Zoom 1 Tiles (2x2) */}
+          <div className="flex flex-wrap w-full h-full">
+            <img src="https://tile.openstreetmap.org/1/0/0.png" className="w-1/2 h-1/2" alt="" />
+            <img src="https://tile.openstreetmap.org/1/1/0.png" className="w-1/2 h-1/2" alt="" />
+            <img src="https://tile.openstreetmap.org/1/0/1.png" className="w-1/2 h-1/2" alt="" />
+            <img src="https://tile.openstreetmap.org/1/1/1.png" className="w-1/2 h-1/2" alt="" />
+          </div>
+        </div>
+      </div>
 
-        {/* Attack origin markers */}
+      {/* Overlay for Attribution */}
+      <div className="absolute bottom-1 right-2 text-[6px] text-muted-foreground z-20">
+        © OpenStreetMap contributors
+      </div>
+
+      {/* Markers Overlay */}
+      <svg viewBox="0 0 800 400" className="absolute inset-0 w-full h-full z-10 pointer-events-none">
         {geoData.attackOrigins.map((o, i) => {
-          const x = ((o.lng + 180) / 360) * 800;
-          const y = ((90 - o.lat) / 180) * 400;
+          // Simple Mercator Projection for Zoom 1 scaled to 800x400
+          // The map above is 512x512 scaled by 1.5 = 768x768. 
+          // We want to center it in 800x400.
+
+          const zoom = 1;
+          const tileSize = 256;
+          const scale = 1.5;
+          const mapSize = Math.pow(2, zoom) * tileSize * scale; // 768
+
+          const lonRad = (o.lng * Math.PI) / 180;
+          const latRad = (o.lat * Math.PI) / 180;
+
+          const xBase = (o.lng + 180) / 360 * Math.pow(2, zoom) * tileSize * scale;
+          const yBase = (1 - Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI) / 2 * Math.pow(2, zoom) * tileSize * scale;
+
+          // Adjust to center in 800x400
+          const x = xBase + (800 - mapSize) / 2;
+          const y = yBase - (mapSize - 400) / 2;
+
           const r = Math.max(6, Math.min(20, o.attacks / 200));
           return (
             <g key={i}>
               <circle cx={x} cy={y} r={r} fill="hsl(0, 84%, 60%)" opacity="0.3" />
               <circle cx={x} cy={y} r={r * 0.6} fill="hsl(0, 84%, 60%)" opacity="0.6" />
               <circle cx={x} cy={y} r={3} fill="hsl(0, 84%, 60%)" />
-              <text x={x} y={y - r - 4} textAnchor="middle" fill="#fff" fontSize="8" fontFamily="IBM Plex Mono">
+              <text x={x} y={y - r - 4} textAnchor="middle" fill="hsl(var(--foreground))" fontSize="8" fontFamily="IBM Plex Mono" className="font-bold">
                 {o.country}
               </text>
             </g>
           );
         })}
 
-        {/* Target marker (India) */}
-        <circle cx={520} cy={160} r={8} fill="none" stroke="hsl(190, 100%, 50%)" strokeWidth="2" />
-        <circle cx={520} cy={160} r={3} fill="hsl(190, 100%, 50%)" />
-        <text x={520} y={150} textAnchor="middle" fill="hsl(190, 100%, 50%)" fontSize="9" fontFamily="IBM Plex Mono" fontWeight="bold">
-          TARGET
-        </text>
+        {/* Target marker (Mumbai, India approx: 19.07, 72.87) */}
+        {(() => {
+          const lat = 19.07;
+          const lng = 72.87;
+          const latRad = (lat * Math.PI) / 180;
+          const scale = 1.5;
+          const mapSize = 768;
+          const x = ((lng + 180) / 360 * mapSize) + (800 - mapSize) / 2;
+          const y = ((1 - Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI) / 2 * mapSize) - (mapSize - 400) / 2;
+
+          return (
+            <g>
+              <circle cx={x} cy={y} r={8} fill="none" stroke="hsl(190, 100%, 50%)" strokeWidth="2" />
+              <circle cx={x} cy={y} r={3} fill="hsl(190, 100%, 50%)" />
+              <text x={x} y={y + 15} textAnchor="middle" fill="hsl(190, 100%, 50%)" fontSize="9" fontFamily="IBM Plex Mono" fontWeight="bold">
+                TARGET
+              </text>
+            </g>
+          );
+        })()}
       </svg>
     </div>
 
@@ -111,9 +131,8 @@ const GeoThreatIntel = () => (
             <td className="font-mono-ibm">{o.attacks.toLocaleString()}</td>
             <td className="font-mono-ibm">{((o.attacks / geoData.totalBlocked) * 100).toFixed(1)}%</td>
             <td>
-              <span className={`px-2 py-0.5 rounded text-[8px] font-bold uppercase ${
-                o.attacks > 2000 ? "severity-critical" : o.attacks > 500 ? "severity-high" : "severity-medium"
-              }`}>
+              <span className={`px-2 py-0.5 rounded text-[8px] font-bold uppercase ${o.attacks > 2000 ? "severity-critical" : o.attacks > 500 ? "severity-high" : "severity-medium"
+                }`}>
                 {o.attacks > 2000 ? "Critical" : o.attacks > 500 ? "High" : "Medium"}
               </span>
             </td>

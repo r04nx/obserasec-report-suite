@@ -1,3 +1,4 @@
+import React from "react";
 import ReportPage from "./ReportPage";
 import { findings, type Finding } from "@/data/reportData";
 
@@ -138,8 +139,8 @@ const DetailedFindings = () => {
           Detailed Findings
         </h2>
         <p className="text-xs text-muted-foreground mb-6 leading-relaxed">
-          This section provides a comprehensive breakdown of all vulnerabilities identified during the 
-          assessment. Each finding includes severity rating, CVSS score, affected hosts, detailed description, 
+          This section provides a comprehensive breakdown of all vulnerabilities identified during the
+          assessment. Each finding includes severity rating, CVSS score, affected hosts, detailed description,
           evidence, impact analysis, and remediation steps.
         </p>
 
