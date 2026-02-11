@@ -21,6 +21,7 @@ import ComplianceBFSI from "@/components/report/templates/ComplianceBFSI";
 import BackCover from "@/components/report/BackCover";
 import EntityGraph from "@/components/report/EntityGraph";
 import MermaidDiagram from "@/components/report/MermaidDiagram";
+import DynamicReport from "@/components/report/DynamicReport";
 
 const Index = () => {
   const handleExportPDF = () => {
@@ -51,6 +52,17 @@ const Index = () => {
         date: reportData.meta?.date || new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
       }
     }), [reportData.meta]);
+
+    // 0. Check for Dynamic Layout (AI-native version)
+    if (reportData.layout) {
+      return (
+        <DynamicReport
+          layout={reportData.layout}
+          meta={commonProps.meta}
+          rawReportData={reportData}
+        />
+      );
+    }
 
     switch (reportType) {
       case "dpdp":

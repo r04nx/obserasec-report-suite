@@ -155,5 +155,4 @@ Host is up (0.00082s latency).
 PORT     STATE SERVICE VERSION
 22/tcp   open  ssh     OpenSSH 8.0 (protocol 2.0)
 1521/tcp open  oracle  Oracle TNS listener 19.0.0.0.0`
-},
 };

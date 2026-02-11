@@ -1,0 +1,447 @@
+{
+    "meta": {
+        "reportId": "OSEC-DYNAMIC-FULL",
+        "date": "11 February 2026",
+        "client": "Acme Global Solutions",
+        "assessmentId": "OSEC-2026-0888",
+        "coverUrl": "/assets/cover_bg.png"
+    },
+    "layout": [
+        {
+            "type": "cover",
+            "props": {
+                "title": "Vulnerability Assessment & Penetration Test",
+                "client": "Acme Global Solutions",
+                "assessmentId": "VAPT-2026-X8",
+                "date": "February 2026"
+            }
+        },
+        {
+            "type": "doc_control",
+            "props": {}
+        },
+        {
+            "type": "text_section",
+            "props": {
+                "title": "AI Executive Overview",
+                "content": [
+                    {
+                        "type": "text",
+                        "data": "This assessment utilized a combination of automated scanning, manual verification, and advanced threat modeling to identify critical risks within the Acme Global infrastructure. Our AI-driven analysis indicates a high concentration of risk in the legacy server segments."
+                    },
+                    {
+                        "type": "grid",
+                        "data": {
+                            "High Priority Assets": "42",
+                            "Exploitable Paths": "14",
+                            "Data Exposure Risk": "Extreme"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "toc",
+            "props": {}
+        },
+        {
+            "type": "exec_summary",
+            "props": {}
+        },
+        {
+            "type": "risk_dashboard",
+            "props": {
+                "title": "Global Risk Analytics",
+                "categoryTitle": "Threat Vectors by Category",
+                "trendTitle": "Risk Velocity (6 Months)",
+                "hostsTitle": "Subnet Vulnerability Heatmap",
+                "matrixTitle": "Likelihood-Impact Assessment"
+            }
+        },
+        {
+            "type": "scope",
+            "props": {}
+        },
+        {
+            "type": "network_arch",
+            "props": {
+                "title": "Infrastructure Topology"
+            }
+        },
+        {
+            "type": "geo_intel",
+            "props": {}
+        },
+        {
+            "type": "detailed_findings",
+            "props": {
+                "title": "Technical Vulnerability Catalog"
+            }
+        },
+        {
+            "type": "vuln_trending",
+            "props": {}
+        },
+        {
+            "type": "compliance_mapping",
+            "props": {}
+        },
+        {
+            "type": "host_summary",
+            "props": {
+                "title": "Inventory-Level Risk Summary"
+            }
+        },
+        {
+            "type": "remediation",
+            "props": {}
+        },
+        {
+            "type": "appendices",
+            "props": {}
+        },
+        {
+            "type": "back_cover",
+            "props": {}
+        }
+    ],
+    "toc": [
+        {
+            "num": "1",
+            "title": "AI Executive Overview",
+            "page": 3
+        },
+        {
+            "num": "2",
+            "title": "Executive Summary",
+            "page": 4
+        },
+        {
+            "num": "3",
+            "title": "Global Risk Analytics",
+            "page": 5
+        },
+        {
+            "num": "3.1",
+            "title": "Threat Vectors",
+            "page": 5
+        },
+        {
+            "num": "3.2",
+            "title": "Risk Velocity",
+            "page": 6
+        },
+        {
+            "num": "4",
+            "title": "Scope & Methodology",
+            "page": 7
+        },
+        {
+            "num": "5",
+            "title": "Infrastructure Topology",
+            "page": 8
+        },
+        {
+            "num": "6",
+            "title": "Geographical Intelligence",
+            "page": 9
+        },
+        {
+            "num": "7",
+            "title": "Technical Vulnerability Catalog",
+            "page": 10
+        },
+        {
+            "num": "8",
+            "title": "Vulnerability Trending",
+            "page": 12
+        },
+        {
+            "num": "9",
+            "title": "Compliance Mapping",
+            "page": 13
+        },
+        {
+            "num": "10",
+            "title": "Inventory-Level Risk Summary",
+            "page": 14
+        },
+        {
+            "num": "11",
+            "title": "Remediation Plan",
+            "page": 15
+        },
+        {
+            "num": "12",
+            "title": "Appendices",
+            "page": 16
+        }
+    ],
+    "docControl": {
+        "versions": [
+            {
+                "version": "1.0",
+                "date": "2026-02-11",
+                "author": "AI Engine",
+                "changes": "Initial Dynamic Generation"
+            }
+        ],
+        "authors": [
+            {
+                "name": "AI Agent",
+                "role": "Security Researcher",
+                "email": "ai@obserasec.com"
+            }
+        ],
+        "reviewers": [
+            {
+                "name": " राहुल वर्मा",
+                "role": "CTO",
+                "email": "rahul@observasec.com"
+            }
+        ],
+        "distribution": [
+            {
+                "name": "Board of Directors",
+                "role": "Stakeholders"
+            }
+        ]
+    },
+    "execSummary": {
+        "totalVulnerabilities": 84,
+        "critical": 5,
+        "high": 12,
+        "medium": 34,
+        "low": 28,
+        "informational": 5,
+        "overallRiskScore": 6.8,
+        "systemsTested": 50,
+        "systemsCompromised": 8,
+        "riskStatement": "The infrastructure shows a moderate-to-high risk profile, primarily driven by unpatched edge devices and legacy authentication protocols in the branch offices."
+    },
+    "severityDist": [
+        {
+            "name": "Critical",
+            "value": 5,
+            "color": "hsl(0, 84%, 60%)"
+        },
+        {
+            "name": "High",
+            "value": 12,
+            "color": "hsl(25, 95%, 53%)"
+        },
+        {
+            "name": "Medium",
+            "value": 34,
+            "color": "hsl(45, 93%, 47%)"
+        },
+        {
+            "name": "Low",
+            "value": 28,
+            "color": "hsl(142, 71%, 45%)"
+        }
+    ],
+    "categoryDist": [
+        {
+            "category": "API Security",
+            "count": 18
+        },
+        {
+            "category": "Cloud Config",
+            "count": 22
+        },
+        {
+            "category": "IAMG",
+            "count": 14
+        },
+        {
+            "category": "Patching",
+            "count": 30
+        }
+    ],
+    "riskTrend": [
+        {
+            "month": "Sep",
+            "score": 3.4
+        },
+        {
+            "month": "Oct",
+            "score": 4.1
+        },
+        {
+            "month": "Nov",
+            "score": 4.8
+        },
+        {
+            "month": "Dec",
+            "score": 5.2
+        },
+        {
+            "month": "Jan",
+            "score": 6.1
+        },
+        {
+            "month": "Feb",
+            "score": 6.8
+        }
+    ],
+    "hostSummary": [
+        {
+            "host": "10.0.1.0/24",
+            "critical": 2,
+            "high": 5,
+            "medium": 8,
+            "low": 4
+        },
+        {
+            "host": "172.16.10.0/24",
+            "critical": 3,
+            "high": 7,
+            "medium": 12,
+            "low": 9
+        }
+    ],
+    "scope": {
+        "ipRanges": [
+            {
+                "range": "10.0.1.0/24",
+                "description": "Cloud Core",
+                "hosts": 150
+            }
+        ],
+        "tools": [
+            {
+                "name": "ObseraSEC Turbo",
+                "version": "4.1",
+                "purpose": "Cognitive Scanning"
+            }
+        ],
+        "timeline": [
+            {
+                "phase": "Discovery",
+                "start": 1,
+                "duration": 2
+            }
+        ]
+    },
+    "networkAssets": [
+        {
+            "ip": "10.0.1.5",
+            "hostname": "api-gateway-01",
+            "os": "Linux / Docker",
+            "type": "Load Balancer",
+            "ports": "443",
+            "vulns": 3,
+            "risk": "High"
+        }
+    ],
+    "subnets": [
+        {
+            "subnet": "10.0.1.0/24",
+            "name": "Public API",
+            "vlan": "110",
+            "hosts": 12,
+            "gateway": "10.0.1.1"
+        }
+    ],
+    "geoData": {
+        "totalBlocked": 54200,
+        "uniqueIPs": 1204,
+        "c2Servers": 4,
+        "attackOrigins": [
+            {
+                "country": "Japan",
+                "attacks": 1200,
+                "lat": 36,
+                "lng": 138
+            }
+        ]
+    },
+    "findings": [
+        {
+            "id": "DYN-001",
+            "title": "Excessive API Rate Limiting Bypass",
+            "severity": "High",
+            "cvss": 8.1,
+            "category": "API",
+            "affectedHosts": [
+                "10.0.1.5"
+            ],
+            "description": "The API gateway fails to properly validate client tracking headers, allowing for distributed denial of service or brute force bypass.",
+            "impact": "Resource exhaustion on core databases.",
+            "evidence": "Observed 10k requests with randomized headers processed without 429 errors.",
+            "remediation": "Implement IP + Token based rate limiting at the ingress controller.",
+            "references": [
+                "OWASP API3:2023"
+            ]
+        }
+    ],
+    "remediation": {
+        "immediate": [
+            {
+                "finding": "DYN-001",
+                "action": "Patch Ingress",
+                "effort": "Low",
+                "impact": "High",
+                "deadline": "24h"
+            }
+        ],
+        "shortTerm": [],
+        "longTerm": []
+    },
+    "complianceMapping": {
+        "frameworks": [
+            {
+                "name": "SOC2 Type II",
+                "controls": [
+                    {
+                        "control": "CC6.1",
+                        "title": "Access Protection",
+                        "status": "Pass",
+                        "finding": "-"
+                    }
+                ],
+                "score": 88
+            }
+        ]
+    },
+    "portScan": [
+        {
+            "ip": "10.0.1.5",
+            "port": 443,
+            "protocol": "TCP",
+            "service": "HTTPS",
+            "version": "Envoy",
+            "state": "Open"
+        }
+    ],
+    "glossary": [
+        {
+            "term": "Velocity",
+            "definition": "The rate at which new risks are introduced versus remediated."
+        }
+    ],
+    "riskMatrix": [
+        [
+            "",
+            "Low",
+            "Medium",
+            "High",
+            "Critical"
+        ],
+        [
+            "Rare",
+            "L",
+            "L",
+            "M",
+            "H"
+        ],
+        [
+            "Likely",
+            "M",
+            "H",
+            "C",
+            "C"
+        ]
+    ]
+}

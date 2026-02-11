@@ -54,11 +54,11 @@ The generation server provides an API to convert report data into PDFs.
 - **Endpoint**: `POST /generate`
 - **Body**: `{ "data": Object, "format": "pdf" }`
 
-### URL-driven Mode
-You can view specific report states by appending query parameters:
-- `?demo=true`: Loads full mock data for demonstration.
-- `?dataUrl=/demo_report_data.json`: Loads data from a specific JSON endpoint.
-- `?type=dpdp`: Renders the DPDP compliance specific view.
+### AI-Native Dynamic Mode (V2)
+The report now supports a fully decoupled, layout-driven architecture. This allows AI agents and LLMs to construct custom report structures without adhering to a rigid JSON schema.
+- **Path**: `http://localhost:5173/?dataUrl=/dynamic_demo_payload.json`
+- **Key Feature**: The `layout` array in JSON defines the order and props of components.
+- **Generic Support**: Use the `text_section` component type to render arbitrary AI-generated text, grids, and tables.
 
 ## 📊 Data Structure
 

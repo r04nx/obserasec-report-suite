@@ -23,9 +23,25 @@ const categoryColors = [
   "hsl(45, 93%, 47%)",  // Medium Severity Yellow
 ];
 
-const RiskDashboard = ({ data, meta }: { data: any; meta?: any }) => {
+interface RiskDashboardProps {
+  data: any;
+  meta?: any;
+  title?: string;
+  categoryTitle?: string;
+  trendTitle?: string;
+  hostsTitle?: string;
+  matrixTitle?: string;
+}
+
+const RiskDashboard = ({ data, meta, title, categoryTitle, trendTitle, hostsTitle, matrixTitle }: RiskDashboardProps) => {
   if (!data) return null;
-  const { category, trend, hosts, riskMatrix, riskCellColor, title, categoryTitle, trendTitle, hostsTitle, matrixTitle } = data;
+  const { category, trend, hosts, riskMatrix, riskCellColor } = data;
+
+  const finalTitle = title || data.title || "Risk Summary Dashboard";
+  const finalCategoryTitle = categoryTitle || data.categoryTitle || "Vulnerabilities by Category";
+  const finalTrendTitle = trendTitle || data.trendTitle || "Risk Trend Over Time";
+  const finalHostsTitle = hostsTitle || data.hostsTitle || "Findings by Host / Subnet";
+  const finalMatrixTitle = matrixTitle || data.matrixTitle || "Risk Matrix (Likelihood × Impact)";
 
   // Use provided matrix or null (don't fallback to hardcoded data/reportData.ts if we want true dynamic)
   const matrix = riskMatrix;
@@ -33,15 +49,15 @@ const RiskDashboard = ({ data, meta }: { data: any; meta?: any }) => {
 
   return (
     <>
-      <ReportPage pageNum={9} sectionTitle={title || "Risk Summary Dashboard"} light={true} meta={meta}>
+      <ReportPage pageNum={9} sectionTitle={finalTitle} light={true} meta={meta}>
         <h2 className="text-2xl font-bold text-[hsl(193,82%,31%)] mb-6 section-accent">
-          {title || "Risk Summary Dashboard"}
+          {finalTitle}
         </h2>
 
         {/* Vuln by Category Bar Chart - CSS Version */}
         <div className="avoid-break">
           <h3 className="text-sm font-bold text-foreground/80 uppercase tracking-wider mb-3">
-            {categoryTitle || "Vulnerabilities by Category"}
+            {finalCategoryTitle}
           </h3>
         </div>
 
@@ -81,7 +97,7 @@ const RiskDashboard = ({ data, meta }: { data: any; meta?: any }) => {
         {/* Risk Trend Line - Approximated as Bars */}
         <div className="avoid-break mt-10">
           <h3 className="text-sm font-bold text-foreground/80 uppercase tracking-wider mb-3">
-            {trendTitle || "Risk Trend Over Time"}
+            {finalTrendTitle}
           </h3>
         </div>
 
@@ -109,11 +125,11 @@ const RiskDashboard = ({ data, meta }: { data: any; meta?: any }) => {
         )}
       </ReportPage>
 
-      <ReportPage pageNum={10} sectionTitle={title || "Risk Summary Dashboard"} light={true} meta={meta}>
+      <ReportPage pageNum={10} sectionTitle={finalTitle} light={true} meta={meta}>
         {/* Stacked Bar by Host */}
         <div className="avoid-break">
           <h3 className="text-sm font-bold text-foreground/80 uppercase tracking-wider mb-3 section-accent">
-            {hostsTitle || "Findings by Host / Subnet"}
+            {finalHostsTitle}
           </h3>
         </div>
 
@@ -146,7 +162,7 @@ const RiskDashboard = ({ data, meta }: { data: any; meta?: any }) => {
         {/* Risk Matrix */}
         <div className="avoid-break mt-10">
           <h3 className="text-sm font-bold text-foreground/80 uppercase tracking-wider mb-3 section-accent">
-            {matrixTitle || "Risk Matrix (Likelihood × Impact)"}
+            {finalMatrixTitle}
           </h3>
         </div>
 

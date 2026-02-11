@@ -2,15 +2,18 @@ import React from "react";
 import ReportPage from "./ReportPage";
 
 interface CoverPageProps {
-  data: any;
+  data?: any;
   meta?: any;
+  client?: string;
+  date?: string;
+  assessmentId?: string;
 }
 
-const CoverPage = ({ data, meta }: CoverPageProps) => {
+const CoverPage = ({ data, meta, client, date, assessmentId }: CoverPageProps) => {
   const metaData = meta || data?.meta;
-  const clientName = metaData?.client || "Acme Corporation Ltd.";
-  const reportDate = metaData?.date || "12 Feb 2026";
-  const assessmentId = metaData?.assessmentId || "OSEC-2026-0142";
+  const clientName = client || metaData?.client || "Acme Corporation Ltd.";
+  const reportDate = date || metaData?.date || "11 February 2026";
+  const finalAssessmentId = assessmentId || metaData?.assessmentId || "OSEC-2026-0142";
 
   // helper to format title date as "February 2026"
   const getTitleDate = (dateStr: string) => {
@@ -162,7 +165,7 @@ const CoverPage = ({ data, meta }: CoverPageProps) => {
         </div>
 
         <div className="doc-id">
-          ID: {assessmentId}
+          ID: {finalAssessmentId}
         </div>
       </div>
     </ReportPage>
