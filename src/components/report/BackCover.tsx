@@ -1,8 +1,6 @@
 import React from "react";
-const BackCover = () => {
-  const reportMeta = {
-    assessmentId: "OSEC-2026-0142",
-  };
+const BackCover = ({ meta }: { meta?: any }) => {
+  const metaData = meta || { assessmentId: "OSEC-2026-0142" };
 
   return (
     <>
@@ -10,7 +8,7 @@ const BackCover = () => {
         .raw-back-page {
             width: 210mm;
             height: 297mm;
-            background-image: url('/assets/cover_bg.png');
+            background-image: url('${metaData.coverUrl || '/assets/cover_bg.png'}');
             background-size: cover;
             background-position: center;
             position: relative;
@@ -23,6 +21,7 @@ const BackCover = () => {
             justify-content: center;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
+            page-break-before: always;
         }
 
         .back-content {
@@ -107,7 +106,7 @@ const BackCover = () => {
           <div className="back-accent" />
 
           <div className="back-contact text-white">
-            <p className="font-bold text-xl mb-2">ObseraSEC</p>
+            <p className="font-bold text-xl mb-2">{metaData.company || "ObseraSEC"}</p>
             <p className="text-[#44AC96] text-sm">info@obserasec.com</p>
             <p className="text-[#44AC96] text-sm">www.obserasec.com</p>
             <p className="text-[10pt] opacity-60 mt-4 font-normal">
@@ -124,7 +123,7 @@ const BackCover = () => {
         </div>
 
         <div className="back-copyright">
-          © {new Date().getFullYear()} ObseraSEC. All rights reserved. | Document ID: {reportMeta.assessmentId}
+          © {new Date().getFullYear()} ObseraSEC. All rights reserved. | Document ID: {metaData.assessmentId}
         </div>
       </div>
     </>

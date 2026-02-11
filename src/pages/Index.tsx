@@ -1,5 +1,6 @@
 import React from "react";
 import { useSearchParams } from "react-router-dom";
+import { useReportData } from "@/hooks/useReportData";
 import CoverPage from "@/components/report/CoverPage";
 import DocumentControl from "@/components/report/DocumentControl";
 import TableOfContents from "@/components/report/TableOfContents";
@@ -18,75 +19,136 @@ import ComplianceDPDP from "@/components/report/templates/ComplianceDPDP";
 import ComplianceCERTIn from "@/components/report/templates/ComplianceCERTIn";
 import ComplianceBFSI from "@/components/report/templates/ComplianceBFSI";
 import BackCover from "@/components/report/BackCover";
+import EntityGraph from "@/components/report/EntityGraph";
+import MermaidDiagram from "@/components/report/MermaidDiagram";
 
 const Index = () => {
   const handleExportPDF = () => {
     window.print();
   };
 
-  /* New logic for report type selection */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const reportData = useReportData();
   const [searchParams] = useSearchParams();
   const reportType = searchParams.get("type") || "full";
+  const shouldPrint = searchParams.get("print") === "true";
+
+  React.useEffect(() => {
+    if (shouldPrint) {
+      // Small delay to ensure rendering is complete
+      const timer = setTimeout(() => {
+        window.print();
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [shouldPrint]);
 
   const renderContent = () => {
+    // Memoize common props to prevent unnecessary re-renders
+    const commonProps = React.useMemo(() => ({
+      meta: {
+        ...reportData.meta,
+        // Ensure date is present, fallback if needed
+        date: reportData.meta?.date || new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+      }
+    }), [reportData.meta]);
+
     switch (reportType) {
       case "dpdp":
         return (
           <>
-            <CoverPage />
-            <DocumentControl />
-            <TableOfContents />
-            <ExecutiveSummary />
-            <ComplianceDPDP />
-            <BackCover />
+            <CoverPage data={reportData} {...commonProps} />
+            <DocumentControl data={reportData.docControl} {...commonProps} />
+            <TableOfContents data={reportData.toc} {...commonProps} />
+            <ExecutiveSummary data={reportData.execSummary} {...commonProps} />
+            <ComplianceDPDP data={reportData.compliance?.dpdp} {...commonProps} />
+            <BackCover {...commonProps} />
           </>
         );
       case "certin":
         return (
           <>
-            <CoverPage />
-            <DocumentControl />
-            <TableOfContents />
-            <ExecutiveSummary />
-            <ComplianceCERTIn />
-            <BackCover />
+            <CoverPage data={reportData} {...commonProps} />
+            <DocumentControl data={reportData.docControl} {...commonProps} />
+            <TableOfContents data={reportData.toc} {...commonProps} />
+            <ExecutiveSummary data={reportData.execSummary} {...commonProps} />
+            <ComplianceCERTIn data={reportData.compliance?.certin} {...commonProps} />
+            <BackCover {...commonProps} />
+          </>
+        );
+      case "sebi":
+        return (
+          <>
+            <CoverPage data={reportData} {...commonProps} />
+            <DocumentControl data={reportData.docControl} {...commonProps} />
+            <TableOfContents data={reportData.toc} {...commonProps} />
+            <ExecutiveSummary data={reportData.execSummary} {...commonProps} />
+            <ComplianceBFSI data={reportData.compliance?.sebi} {...commonProps} />
+            <BackCover {...commonProps} />
+          </>
+        );
+      case "rbi":
+        return (
+          <>
+            <CoverPage data={reportData} {...commonProps} />
+            <DocumentControl data={reportData.docControl} {...commonProps} />
+            <TableOfContents data={reportData.toc} {...commonProps} />
+            <ExecutiveSummary data={reportData.execSummary} {...commonProps} />
+            <ComplianceBFSI data={reportData.compliance?.rbi} {...commonProps} />
+            <BackCover {...commonProps} />
           </>
         );
       case "bfsi":
         return (
           <>
-            <CoverPage />
-            <DocumentControl />
-            <TableOfContents />
-            <ExecutiveSummary />
-            <ComplianceBFSI />
-            <BackCover />
+            <CoverPage data={reportData} {...commonProps} />
+            <DocumentControl data={reportData.docControl} {...commonProps} />
+            <TableOfContents data={reportData.toc} {...commonProps} />
+            <ExecutiveSummary data={reportData.execSummary} {...commonProps} />
+            <ComplianceBFSI data={reportData.compliance?.sebi} {...commonProps} />
+            <BackCover {...commonProps} />
           </>
         );
-      default: // "full"
+      case "full": // default
+      default:
         return (
           <>
-            <CoverPage />
-            <DocumentControl />
-            <TableOfContents />
-            <ExecutiveSummary />
-            <ScopeMethodology />
-            <RiskDashboard />
-            <NetworkArchitecture />
-            <GeoThreatIntel />
-            <DetailedFindings />
-            <VulnTrending />
-            <ComplianceMapping />
-            <HostSummary />
-            <RemediationRoadmap />
-            <Appendices />
-            <div className="page-break" />
-            <div className="section-header p-10 font-bold text-2xl">Compliance Templates</div>
-            <ComplianceDPDP />
-            <ComplianceCERTIn />
-            <ComplianceBFSI />
-            <BackCover />
+            <CoverPage data={reportData} {...commonProps} />
+            <DocumentControl data={reportData.docControl} {...commonProps} />
+            <TableOfContents data={reportData.toc} {...commonProps} />
+            <ExecutiveSummary data={reportData.execSummary} {...commonProps} />
+            <ScopeMethodology data={reportData.scope} {...commonProps} />
+            <RiskDashboard
+              data={{
+                severity: reportData.severityDist,
+                category: reportData.categoryDist,
+                trend: reportData.riskTrend,
+                hosts: reportData.hostFindings,
+                riskMatrix: reportData.riskDashboard?.riskMatrix || reportData.riskMatrix
+              }}
+              {...commonProps}
+            />
+            <NetworkArchitecture data={{ assets: reportData.networkAssets, subnets: reportData.subnets }} {...commonProps} />
+            <GeoThreatIntel data={reportData.geoData} {...commonProps} />
+            <DetailedFindings data={reportData.findings} {...commonProps} />
+            <VulnTrending data={reportData.trending} {...commonProps} />
+            <ComplianceMapping data={reportData.complianceMapping} {...commonProps} />
+            <HostSummary data={reportData.networkAssets} {...commonProps} />
+            <EntityGraph data={reportData.entityGraph} {...commonProps} />
+            <MermaidDiagram data={reportData.mermaidDiagram} {...commonProps} />
+            <RemediationRoadmap data={reportData.remediation} {...commonProps} />
+            <Appendices data={{
+              portScan: reportData.portScan || reportData.portScanResults,
+              glossary: reportData.glossary,
+              toolOutputTitle: reportData.toolOutputTitle,
+              toolOutputText: reportData.toolOutputText
+            }} {...commonProps} />
+
+            <ComplianceDPDP data={reportData.compliance?.dpdp} {...commonProps} />
+            <ComplianceCERTIn data={reportData.compliance?.certin} {...commonProps} />
+            <ComplianceBFSI data={reportData.compliance?.sebi} {...commonProps} />
+            <ComplianceBFSI data={reportData.compliance?.rbi} {...commonProps} />
+
+            <BackCover {...commonProps} />
           </>
         );
     }

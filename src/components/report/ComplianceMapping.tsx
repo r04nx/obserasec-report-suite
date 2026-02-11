@@ -1,6 +1,7 @@
 import React from "react";
 import ReportPage from "./ReportPage";
-import { complianceData } from "@/data/reportData";
+import EmptyState from "./EmptyState";
+import { ListChecks } from "lucide-react";
 
 const statusStyle: Record<string, string> = {
   Pass: "bg-[hsl(142,71%,45%)] text-white",
@@ -8,43 +9,55 @@ const statusStyle: Record<string, string> = {
   Partial: "bg-[hsl(45,93%,47%)] text-[#1a1a1a]",
 };
 
-const ComplianceMapping = () => {
-  const scoreData = complianceData.frameworks.map((f) => ({
+const ComplianceMapping = ({ data, meta }: { data: any; meta?: any }) => {
+  if (!data) return null;
+  const frameworks = (data.frameworks || []);
+  const title = data.title || "Compliance Mapping";
+
+  const scoreData = frameworks.map((f: any) => ({
     name: f.name.split(":")[0].split(" ").slice(0, 2).join(" "),
     score: f.score,
   }));
 
   return (
     <>
-      <ReportPage pageNum={36} sectionTitle="Compliance Mapping" light={true}>
-        <h2 className="text-2xl font-bold text-[hsl(var(--obsera-cyan))] mb-6 section-accent">
-          Compliance Mapping
-        </h2>
+      {frameworks.map((fw: any, idx: number) => (
+        <ReportPage
+          key={fw.name}
+          pageNum={36 + idx}
+          sectionTitle={idx === 0 ? title : `${title} (Cont.)`}
+          light={true}
+          meta={meta}
+          showFooter={idx === 0}
+        >
+          {idx === 0 && (
+            <>
+              <h2 className="text-2xl font-bold text-[hsl(var(--obsera-cyan))] mb-6 section-accent">
+                {title}
+              </h2>
 
-        {/* Score chart - CSS Bar Chart */}
-        <h3 className="text-sm font-bold text-foreground/80 uppercase tracking-wider mb-3">
-          Compliance Scores by Framework
-        </h3>
-        <div className="h-48 bg-[hsl(var(--obsera-surface))] rounded-lg p-6 border border-[hsl(var(--border))] mb-6">
-          <div className="flex items-end justify-between h-full gap-4">
-            {scoreData.map((item, i) => {
-              return (
-                <div key={i} className="flex-1 flex flex-col items-center gap-2 group h-full justify-end">
-                  <div className="text-xs font-bold text-muted-foreground mb-1">{item.score}%</div>
-                  <div
-                    className="w-full bg-[hsl(0,84%,60%)] rounded-t-sm opacity-80 hover:opacity-100"
-                    style={{ height: `${item.score}%` }}
-                  ></div>
-                  <div className="text-[9px] text-muted-foreground text-center line-clamp-2 h-4">{item.name}</div>
+              {/* Score chart - CSS Bar Chart */}
+              <h3 className="text-sm font-bold text-foreground/80 uppercase tracking-wider mb-3">
+                Compliance Scores by Framework
+              </h3>
+              <div className="h-48 bg-[hsl(var(--obsera-surface))] rounded-lg p-6 border border-[hsl(var(--border))] mb-8">
+                <div className="flex items-end justify-between h-full gap-4">
+                  {scoreData.map((item: any, i: number) => (
+                    <div key={i} className="flex-1 flex flex-col items-center gap-2 group h-full justify-end">
+                      <div className="text-xs font-bold text-muted-foreground mb-1">{item.score}%</div>
+                      <div
+                        className="w-full bg-[hsl(167,43%,35%)] rounded-t-sm opacity-80 hover:opacity-100"
+                        style={{ height: `${item.score}%` }}
+                      ></div>
+                      <div className="text-[9px] text-muted-foreground text-center line-clamp-2 h-4">{item.name}</div>
+                    </div>
+                  ))}
                 </div>
-              );
-            })}
-          </div>
-        </div>
+              </div>
+            </>
+          )}
 
-        {/* Framework tables */}
-        {complianceData.frameworks.map((fw) => (
-          <div key={fw.name} className="mb-6">
+          <div className="mb-6 avoid-break">
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-xs font-bold text-[hsl(var(--obsera-cyan))] uppercase tracking-wider">
                 {fw.name}
@@ -56,30 +69,30 @@ const ComplianceMapping = () => {
             <table className="report-table text-[9px]">
               <thead>
                 <tr>
-                  <th>Control</th>
+                  <th className="w-16">Control</th>
                   <th>Title</th>
-                  <th>Status</th>
-                  <th>Related Finding</th>
+                  <th className="w-16">Status</th>
+                  <th className="w-32">Related Finding</th>
                 </tr>
               </thead>
               <tbody>
-                {fw.controls.map((c) => (
+                {(fw.controls || []).map((c: any) => (
                   <tr key={c.control}>
                     <td className="font-mono-ibm">{c.control}</td>
                     <td>{c.title}</td>
                     <td>
-                      <span className={`${statusStyle[c.status]} px-2 py-0.5 rounded text-[8px] font-bold uppercase`}>
+                      <span className={`${statusStyle[c.status] || 'bg-gray-500 text-white'} px-2 py-0.5 rounded text-[8px] font-bold uppercase`}>
                         {c.status}
                       </span>
                     </td>
-                    <td className="font-mono-ibm text-[hsl(var(--obsera-cyan))]">{c.finding}</td>
+                    <td className="font-mono-ibm text-[hsl(var(--obsera-cyan))] break-all">{c.finding}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-        ))}
-      </ReportPage>
+        </ReportPage>
+      ))}
     </>
   );
 };

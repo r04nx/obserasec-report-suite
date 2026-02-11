@@ -1,6 +1,8 @@
 import React from "react";
 import ReportPage from "./ReportPage";
-import { findings, type Finding } from "@/data/reportData";
+import EmptyState from "./EmptyState";
+import { Search } from "lucide-react";
+import { type Finding } from "@/data/reportData";
 
 const severityColor: Record<string, string> = {
   Critical: "severity-critical",
@@ -24,16 +26,16 @@ const evidenceImages: Record<string, string> = {
   "OSEC-F007": "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=600&q=80",
 };
 
-const FindingCard = ({ finding, pageNum }: { finding: Finding; pageNum: number }) => (
-  <ReportPage pageNum={pageNum} sectionTitle="Detailed Findings">
+const FindingCard = ({ finding, pageNum, meta }: { finding: Finding; pageNum: number; meta?: any }) => (
+  <ReportPage pageNum={pageNum} sectionTitle="Detailed Findings" meta={meta}>
     <div className="avoid-break">
       {/* Finding Header */}
       <div className="flex items-start justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <span className="font-mono-ibm text-[hsl(var(--obsera-cyan))] text-lg font-bold">
+        <div className="flex items-center gap-3 max-w-[80%]">
+          <span className="font-mono-ibm text-[hsl(var(--obsera-cyan))] text-xs font-bold break-all">
             {finding.id}
           </span>
-          <span className={`${severityColor[finding.severity]} px-3 py-1 rounded text-[10px] font-bold uppercase`}>
+          <span className={`${severityColor[finding.severity]} px-3 py-1 rounded text-[10px] font-bold uppercase shrink-0`}>
             {finding.severity}
           </span>
         </div>
@@ -86,11 +88,11 @@ const FindingCard = ({ finding, pageNum }: { finding: Finding; pageNum: number }
 
       {/* Evidence */}
       <h4 className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2">
-        Evidence / Proof of Concept
+        {finding.evidenceTitle || "Evidence / Proof of Concept"}
       </h4>
-      {evidenceImages[finding.id] && (
+      {(finding.evidenceImageUrl || evidenceImages[finding.id]) && (
         <div className="w-full h-24 rounded-lg overflow-hidden mb-2 relative">
-          <img src={evidenceImages[finding.id]} alt="Evidence" className="w-full h-full object-cover opacity-60" />
+          <img src={finding.evidenceImageUrl || evidenceImages[finding.id]} alt="Evidence" className="w-full h-full object-cover opacity-60" />
           <div className="absolute inset-0 bg-gradient-to-t from-[#0A1628] to-transparent" />
         </div>
       )}
@@ -131,50 +133,110 @@ const FindingCard = ({ finding, pageNum }: { finding: Finding; pageNum: number }
   </ReportPage>
 );
 
-const DetailedFindings = () => {
+const DetailedFindings = ({ data, meta }: { data: any; meta?: any }) => {
+  const rawFindings = (Array.isArray(data) ? data : (data?.findings || []));
+  const title = data?.title || "Detailed Findings";
+  const description = data?.description || "This section provides a summary of unique vulnerabilities identified during the assessment. Redundant findings have been consolidated to highlight critical exposure areas.";
+
+  // 1. Clean Title and Deduplicate
+  const uniqueFindingsMap = new Map();
+
+  rawFindings.forEach((f: any) => {
+    // Strip "detected by sfp_..." from title
+    const cleanTitle = f.title.split(" detected by ")[0];
+    const key = `${cleanTitle}-${f.severity}`;
+
+    if (!uniqueFindingsMap.has(key)) {
+      uniqueFindingsMap.set(key, {
+        ...f,
+        title: cleanTitle,
+        count: 1
+      });
+    } else {
+      uniqueFindingsMap.get(key).count += 1;
+    }
+  });
+
+  const findingsList = Array.from(uniqueFindingsMap.values())
+    .sort((a, b) => {
+      const severityOrder: any = { Critical: 0, High: 1, Medium: 2, Low: 3, Info: 4 };
+      return severityOrder[a.severity] - severityOrder[b.severity] || b.cvss - a.cvss;
+    });
+
+  // Paginate table for unique findings (25 per page to avoid footer overlap)
+  const CHUNK_SIZE = 36;
+  const findingChunks = [];
+  for (let i = 0; i < findingsList.length; i += CHUNK_SIZE) {
+    findingChunks.push(findingsList.slice(i, i + CHUNK_SIZE));
+  }
+
+  // Filter for detail cards (still filtered by severity)
+  const detailCards = findingsList
+    .filter((f: any) => f.severity === "Critical" || f.severity === "High" || f.severity === "Medium")
+    .slice(0, 100);
+
   return (
     <>
-      <ReportPage pageNum={16} sectionTitle="Detailed Findings">
-        <h2 className="text-2xl font-bold text-[hsl(var(--obsera-cyan))] mb-6 section-accent">
-          Detailed Findings
-        </h2>
-        <p className="text-xs text-muted-foreground mb-6 leading-relaxed">
-          This section provides a comprehensive breakdown of all vulnerabilities identified during the
-          assessment. Each finding includes severity rating, CVSS score, affected hosts, detailed description,
-          evidence, impact analysis, and remediation steps.
-        </p>
+      {findingChunks.map((chunk, chunkIdx) => (
+        <ReportPage
+          key={`table-page-${chunkIdx}`}
+          pageNum={16 + chunkIdx}
+          sectionTitle={chunkIdx === 0 ? title : `${title} (Cont.)`}
+          meta={meta}
+          showFooter={chunkIdx === 0}
+        >
+          {chunkIdx === 0 && (
+            <>
+              <h2 className="text-2xl font-bold text-[hsl(var(--obsera-cyan))] mb-6 section-accent">
+                {title}
+              </h2>
+              <p className="text-xs text-muted-foreground mb-6 leading-relaxed">
+                {description}
+              </p>
+            </>
+          )}
 
-        {/* Summary table */}
-        <table className="report-table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Title</th>
-              <th>Severity</th>
-              <th>CVSS</th>
-              <th>Category</th>
-            </tr>
-          </thead>
-          <tbody>
-            {findings.map((f) => (
-              <tr key={f.id}>
-                <td className="font-mono-ibm text-[hsl(var(--obsera-cyan))]">{f.id}</td>
-                <td className="text-[9px]">{f.title}</td>
-                <td>
-                  <span className={`${severityColor[f.severity]} px-2 py-0.5 rounded text-[8px] font-bold uppercase`}>
-                    {f.severity}
-                  </span>
-                </td>
-                <td className="font-mono-ibm font-bold" style={{ color: cvssColor(f.cvss) }}>{f.cvss}</td>
-                <td className="text-[9px]">{f.category}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </ReportPage>
+          {findingsList.length === 0 ? (
+            <EmptyState message="No vulnerabilities found" icon={<Search size={32} />} height="300px" />
+          ) : (
+            <div className="w-full">
+              <table className="report-table w-full border border-[hsl(var(--border))]">
+                <thead>
+                  <tr className="bg-[hsl(var(--obsera-navy))]">
+                    <th className="text-left py-2 px-3">Finding Title</th>
+                    <th className="text-left py-2 px-3 w-20">Severity</th>
+                    <th className="text-left py-2 px-3 w-16">CVSS</th>
+                    <th className="text-left py-2 px-3 w-24 text-center">Occurrences</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {chunk.map((f: any, idx: number) => (
+                    <tr key={`${f.title}-${idx}`} className="border-b border-[hsl(var(--border))] hover:bg-[hsl(var(--obsera-surface))]">
+                      <td className="text-[10px] py-1.5 px-3 font-semibold text-[hsl(var(--obsera-cyan))] leading-snug">
+                        {f.title}
+                      </td>
+                      <td className="py-1.5 px-3">
+                        <span className={`${severityColor[f.severity] || 'severity-info'} px-1.5 py-0.5 rounded text-[8px] font-bold uppercase whitespace-nowrap`}>
+                          {f.severity}
+                        </span>
+                      </td>
+                      <td className="font-mono-ibm font-bold py-1.5 px-3 text-[10px]" style={{ color: cvssColor(f.cvss || 0) }}>
+                        {f.cvss || 0}
+                      </td>
+                      <td className="text-[10px] py-1.5 px-3 font-mono-ibm text-center bg-[hsl(var(--obsera-surface-elevated))] font-bold text-muted-foreground">
+                        {f.count}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </ReportPage>
+      ))}
 
-      {findings.map((f, i) => (
-        <FindingCard key={f.id} finding={f} pageNum={17 + i} />
+      {detailCards.map((f: any, i: number) => (
+        <FindingCard key={`${f.title}-${i}`} finding={f} pageNum={16 + findingChunks.length + i} meta={meta} />
       ))}
     </>
   );

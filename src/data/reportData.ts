@@ -1,4 +1,133 @@
-// ObseraSEC Network Infrastructure Security Assessment - Mock Data
+// ObseraSEC Network Infrastructure Security Assessment - Data Layer
+
+export interface ReportMeta {
+  title: string;
+  subtitle: string;
+  client: string;
+  clientIndustry: string;
+  assessmentId: string;
+  version: string;
+  classification: string;
+  date: string;
+  dateRange: string;
+  preparedBy: string;
+  platform: string;
+  company: string;
+  logoUrl?: string;
+  coverUrl?: string;
+}
+
+export interface DocumentControl {
+  versions: Array<{ version: string; date: string; author: string; changes: string }>;
+  authors: Array<{ name: string; role: string; email: string }>;
+  reviewers: Array<{ name: string; role: string; email: string }>;
+  distribution: Array<{ name: string; role: string }>;
+}
+
+export interface ExecutiveSummary {
+  totalVulnerabilities: number;
+  critical: number;
+  high: number;
+  medium: number;
+  low: number;
+  informational: number;
+  overallRiskScore: number;
+  systemsTested: number;
+  systemsCompromised: number;
+  riskStatement: string;
+}
+
+export interface ObseraReportData {
+  meta: ReportMeta;
+  docControl: DocumentControl;
+  toc?: Array<{ num: string; title: string; page: number }>;
+  execSummary: ExecutiveSummary & {
+    title?: string;
+    metricsTitle?: string;
+    riskScoreTitle?: string;
+    distributionTitle?: string;
+    riskStatementTitle?: string;
+  };
+  riskDashboard?: {
+    title?: string;
+    categoryTitle?: string;
+    trendTitle?: string;
+    hostsTitle?: string;
+    matrixTitle?: string;
+  };
+  hostSummary: Array<{ host: string; critical: number; high: number; medium: number; low: number }> & {
+    title?: string;
+    description?: string;
+  };
+  scope: {
+    title?: string;
+    description?: string;
+    ipRanges: Array<{ range: string; description: string; hosts: number }>;
+    tools: Array<{ name: string; version: string; purpose: string }>;
+    timeline: Array<{ phase: string; start: number; duration: number }>;
+  };
+  networkAssets: Array<{ ip: string; hostname: string; os: string; type: string; ports: string; vulns: number; risk: string }> & {
+    title?: string;
+    description?: string;
+  };
+  subnets: Array<{ subnet: string; name: string; vlan: string; hosts: number; gateway: string }> & {
+    title?: string;
+    description?: string;
+  };
+  geoData: {
+    title?: string;
+    description?: string;
+    attackOrigins: Array<{ country: string; attacks: number; lat: number; lng: number }>;
+    totalBlocked: number;
+    uniqueIPs: number;
+    c2Servers: number;
+  };
+  findings: Finding[] & {
+    title?: string;
+    description?: string;
+  };
+  trending: {
+    title?: string;
+    byPhase: Array<{ phase: string; discovered: number }>;
+    byService: Array<{ service: string; critical: number; high: number; medium: number; low: number }>;
+    patchStatus: Array<{ name: string; value: number }>;
+    riskExposure: Array<{ day: string; exposure: number }>;
+  };
+  remediation: {
+    title?: string;
+    immediate: Array<{ finding: string; action: string; effort: string; impact: string; deadline: string }>;
+    shortTerm: Array<{ finding: string; action: string; effort: string; impact: string; deadline: string }>;
+    longTerm: Array<{ finding: string; action: string; effort: string; impact: string; deadline: string }>;
+  };
+  riskMatrix?: any[][];
+  hostFindings: Array<{ host: string; critical: number; high: number; medium: number; low: number }>;
+  complianceMapping: {
+    title?: string;
+    frameworks: Array<{
+      name: string;
+      score: number;
+      controls: Array<{ control: string; title: string; status: string; finding: string }>;
+    }>;
+  };
+  compliance: {
+    dpdp?: any;
+    certin?: any;
+    sebi?: any;
+    rbi?: any;
+  };
+  entityGraph?: {
+    title?: string;
+    subtitle?: string;
+    entities: any[];
+    connections: any[];
+  };
+  mermaidDiagram?: {
+    title?: string;
+    subtitle?: string;
+    diagramCode: string;
+    type?: string;
+  };
+}
 
 export const reportMeta = {
   title: "Network Infrastructure Security Assessment",
@@ -8,13 +137,13 @@ export const reportMeta = {
   assessmentId: "OSEC-2026-0142",
   version: "1.0",
   classification: "CONFIDENTIAL",
-  date: "February 2026",
+  date: "11 February 2026",
   dateRange: "January 15 – February 5, 2026",
   preparedBy: "ObseraSEC Security Team",
   platform: "ObseraOne",
   company: "ObseraSEC",
-  logoUrl: "/images/observasec-logo-dark.png",
-  coverUrl: "/images/cover-page-template.png",
+  logoUrl: "https://flem.xo.je/uploads/image_1ab47d1d.png",
+  coverUrl: "/assets/cover_bg.png",
 };
 
 export const documentControl = {
@@ -216,6 +345,7 @@ export interface Finding {
   remediation: string;
   references: string[];
   cve?: string;
+  evidenceImageUrl?: string;
 }
 
 export const findings: Finding[] = [
@@ -571,3 +701,127 @@ export const glossary = [
   { term: "NLA", definition: "Network Level Authentication - a security feature requiring RDP clients to authenticate before a full session is established." },
   { term: "gMSA", definition: "Group Managed Service Account - an Active Directory account type with automatic password management for services." },
 ];
+export const entityGraphData = {
+  title: "Vulnerability Correlation Graph",
+  subtitle: "Visual mapping of critical vulnerabilities and their potential lateral movement paths",
+  entities: [
+    { id: 'ext-intel', name: 'External Threat Intel', type: 'threat', risk: 'high', description: 'Real-time threat feeds' },
+    { id: 'web-dmz', name: 'Web DMZ (10.0.3.10)', type: 'system', risk: 'high', description: 'Public facing web server' },
+    { id: 'db-prod', name: 'DB Prod (10.0.2.11)', type: 'system', risk: 'critical', description: 'Production database' },
+    { id: 'dc-hq', name: 'DC HQ (10.0.1.10)', type: 'system', risk: 'critical', description: 'Primary Domain Controller' },
+    { id: 'vuln-sqli', name: 'SQL Injection', type: 'vulnerability', risk: 'critical', description: 'Active SQLi in HR Portal' },
+    { id: 'vuln-smb', name: 'SMBv1/EternalBlue', type: 'vulnerability', risk: 'critical', description: 'Critical exploit path' },
+    { id: 'ctrl-waf', name: 'WAF', type: 'control', risk: 'medium', description: 'Web Application Firewall' }
+  ],
+  connections: [
+    { source: 'ext-intel', target: 'vuln-sqli', type: 'relates', strength: 8, description: 'threat pattern' },
+    { source: 'web-dmz', target: 'vuln-sqli', type: 'relates', strength: 10, description: 'vulnerable' },
+    { source: 'vuln-sqli', target: 'db-prod', type: 'exploit', strength: 9, description: 'data access' },
+    { source: 'vuln-smb', target: 'dc-hq', type: 'exploit', strength: 10, description: 'RCE' },
+    { source: 'ctrl-waf', target: 'web-dmz', type: 'protects', strength: 6, description: 'partial mitigation' },
+    { source: 'web-dmz', target: 'dc-hq', type: 'communicates', strength: 7, description: 'unrestricted LAN access' }
+  ]
+};
+
+export const mermaidDiagramData = {
+  title: "Security Infrastructure Architecture",
+  subtitle: "End-to-end security control mapping and data flow",
+  type: "graph",
+  diagramCode: `graph TD
+    User((External User)) --> WAF[Web Application Firewall]
+    WAF -- Encrypted --> LB[Load Balancer]
+    LB --> Web1[Web Server 01]
+    LB --> Web2[Web Server 02]
+    Web1 --> AppSrv[Application Layer]
+    Web2 --> AppSrv
+    AppSrv -- Auth Required --> DB[(Production DB)]
+    AppSrv --> Cache[Redis Cache]
+    Admin[Internal Admin] --> Bastion[Bastion Host]
+    Bastion --> AppSrv
+    Bastion --> DB
+    
+    %% Styles
+    style WAF fill:#f96,stroke:#333,stroke-width:2px,color:#fff
+    style DB fill:#00d,stroke:#333,stroke-width:2px,color:#fff
+    style Admin fill:#6f6,stroke:#333,stroke-width:2px`
+};
+
+export const dpdpData = {
+  privacyScore: 78,
+  complianceStatus: "Mostly Compliant",
+  gapCount: 4,
+  dsrEfficiency: "94%",
+  applicabilityTitle: "DPDP Act Applicability Confirmed",
+  applicabilityText: "Organization is classified as a <strong>Significant Data Fiduciary</strong> based on volume and sensitivity of processed PII.",
+  consentTotalLabel: "Active Consents",
+  consentMetrics: [
+    { name: "Valid Consent", value: 65, color: "hsl(var(--obsera-teal))" },
+    { name: "Expired", value: 5, color: "hsl(var(--obsera-critical))" },
+    { name: "Notice Only", value: 30, color: "hsl(var(--obsera-medium))" }
+  ],
+  dsrMetrics: [
+    { type: "Right to Access", fulfilled: 45, received: 48 },
+    { type: "Right to Correction", fulfilled: 12, received: 15 },
+    { type: "Right to Erasure", fulfilled: 8, received: 10 },
+    { type: "Right to Grievance", fulfilled: 3, received: 3 }
+  ],
+  piiInventoryTitle: "Personal Data Inventory (Sample)",
+  piiInventory: [
+    { category: "Customer Identity", type: "Name, Aadhar, PAN, DoB", lawfulBasis: "Contractual", exposure: "High" },
+    { category: "Financial Info", type: "Bank Account, Credit Score", lawfulBasis: "Legal Obligation", exposure: "High" },
+    { category: "Contact Info", type: "Email, Phone, Address", lawfulBasis: "Consent", exposure: "Medium" },
+    { category: "Usage Logs", type: "IP Address, Device ID", lawfulBasis: "Legitimate Interest", exposure: "Low" }
+  ],
+  complianceMatrix: [
+    { section: "Section 4 - Grounds for processing", status: "Compliant", remarks: "All processing aligned with consent or legitimate interest." },
+    { section: "Section 8 - Obligations of Data Fiduciary", status: "Partial", remarks: "Gaps in data erasure automation discovered." },
+    { section: "Section 9 - Processing of personal data of children", status: "Compliant", remarks: "Verifiable parental consent mechanism active." },
+    { section: "Section 10 - Additional obligations for SDF", status: "Partial", remarks: "Data Protection Impact Assessment (DPIA) pending for new module." }
+  ]
+};
+
+export const certInData = {
+  assetsScanned: 154,
+  vulnerabilitySummary: [
+    { severity: 'Critical', count: 3, color: 'hsl(var(--obsera-critical))' },
+    { severity: 'High', count: 12, color: 'hsl(var(--obsera-high))' },
+    { severity: 'Medium', count: 28, color: 'hsl(var(--obsera-medium))' },
+    { severity: 'Low', count: 45, color: 'hsl(var(--obsera-low))' }
+  ],
+  auditScope: [
+    { type: "Core Banking Servers", count: 12, methodology: "Grey Box / Manual Review" },
+    { type: "User Workstations", count: 85, methodology: "Automated Scan" },
+    { type: "Network Security Devices", count: 24, methodology: "Firmware Analysis / Config Review" },
+    { type: "External Facing IPs", count: 33, methodology: "Black Box PT" }
+  ],
+  topVulnerabilities: [
+    { title: "Unauthenticated MSSQL DB Access", cve: "OSEC-F008", severity: "Critical", asset: "10.0.2.10", status: "Open" },
+    { title: "Weak SNMP Community Strings", cve: "CVE-2017-6736", severity: "Critical", asset: "10.0.1.1", status: "In Progress" },
+    { title: "Outdated Fortinet Firmware", cve: "CVE-2023-27997", severity: "High", asset: "172.16.0.1", status: "Open" }
+  ],
+  trendData: [
+    { month: 'Sep', vulns: 45 },
+    { month: 'Oct', vulns: 52 },
+    { month: 'Nov', vulns: 38 },
+    { month: 'Dec', vulns: 61 },
+    { month: 'Jan', vulns: 42 },
+    { month: 'Feb', vulns: 15 }
+  ]
+};
+
+export const bfsiData = {
+  governanceScore: 82,
+  rbiMasterDirectionStatus: "Compliant",
+  sebiCscrfStatus: "Partially Compliant",
+  riskHeatmap: [
+    { likelihood: 1, impact: 2, risk: "Data Loss" },
+    { likelihood: 3, impact: 4, risk: "Service Outage" },
+    { likelihood: 5, impact: 5, risk: "Zero Day Exploit" },
+    { likelihood: 2, impact: 3, risk: "Phishing Attack" }
+  ],
+  controlGaps: [
+    { control: "Vendor Risk Mgmt", framework: "SEBI CSCRF", gap: "SLA monitoring for critical 4th party providers missing.", priority: "High" },
+    { control: "Access Recertification", framework: "RBI Master Dir", gap: "Privileged access reviews lagging by 45 days.", priority: "Medium" },
+    { control: "Encryption at Rest", framework: "SEBI CSCRF", gap: "Legacy backup tapes not encrypted.", priority: "Critical" }
+  ]
+};

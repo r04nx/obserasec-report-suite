@@ -573,15 +573,13 @@ const generateReport = async (config: ReportConfig = defaultConfig, customData: 
         /* Custom theme colors - Override Tailwind variables with HSL values */
         :root {
             --obsera-cyan: ${primaryHSL};
-            /* Match client-side: obsera-navy is the light background, navy-deep is the dark brand color */
-            --obsera-navy: 210 40% 98%; 
-            --obsera-navy-deep: ${secondaryHSL};
-            
+            --obsera-navy: ${secondaryHSL};
             --obsera-critical: 0 84% 60%;
             --obsera-high: 25 95% 53%;
             --obsera-medium: 45 93% 47%;
             --obsera-low: 142 71% 40%;
-            --obsera-surface: 210 40% 98%;
+            --obsera-surface: 210 40% 98%; /* approximated #f8fafc */
+            --obsera-navy-deep: 222 47% 11%; /* approximated #0A1628 */
         }
 
         /* Print and Report specific overrides */
@@ -655,7 +653,7 @@ const generateReport = async (config: ReportConfig = defaultConfig, customData: 
     
     ${config.output.includeStyles ? `
     <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
-    <script src="https://unpkg.com/force-graph"></script>
+    <script src="//unpkg.com/force-graph"></script>
     <script>
         // Initialize Mermaid
         document.addEventListener('DOMContentLoaded', function() {
@@ -688,9 +686,7 @@ const generateReport = async (config: ReportConfig = defaultConfig, customData: 
                         .nodeColor(node => node.color || '#ccc')
                         .nodeVal('val')
                         .linkDirectionalArrowLength(4)
-                        .linkDirectionalArrowRelPos(1)
-                        .warmupTicks(100)
-                        .cooldownTicks(0);
+                        .linkDirectionalArrowRelPos(1);
                 } catch (e) {
                     console.error("Failed to init force graph", e);
                 }

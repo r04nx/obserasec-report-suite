@@ -2,9 +2,14 @@ import React from "react";
 import ReportPage from "./ReportPage";
 import { documentControl } from "@/data/reportData";
 
-const DocumentControl = () => {
+const DocumentControl = ({ data, meta }: { data: any; meta?: any }) => {
+  const versions = data?.versions || [];
+  const authors = data?.authors || [];
+  const reviewers = data?.reviewers || [];
+  const distribution = data?.distribution || [];
+
   return (
-    <ReportPage pageNum={2} sectionTitle="Document Control">
+    <ReportPage pageNum={2} sectionTitle="Document Control" meta={meta}>
       <h2 className="text-2xl font-bold text-[hsl(var(--obsera-cyan))] mb-6 section-accent">
         Document Control
       </h2>
@@ -23,7 +28,7 @@ const DocumentControl = () => {
           </tr>
         </thead>
         <tbody>
-          {documentControl.versions.map((v) => (
+          {versions.map((v: any) => (
             <tr key={v.version}>
               <td className="font-mono-ibm text-[hsl(var(--obsera-cyan))]">{v.version}</td>
               <td className="font-mono-ibm">{v.date}</td>
@@ -43,7 +48,7 @@ const DocumentControl = () => {
           <tr><th>Name</th><th>Role</th><th>Email</th></tr>
         </thead>
         <tbody>
-          {documentControl.authors.map((a) => (
+          {authors.map((a: any) => (
             <tr key={a.email}>
               <td className="font-semibold">{a.name}</td>
               <td>{a.role}</td>
@@ -62,7 +67,7 @@ const DocumentControl = () => {
           <tr><th>Name</th><th>Role</th><th>Email</th></tr>
         </thead>
         <tbody>
-          {documentControl.reviewers.map((r) => (
+          {reviewers.map((r: any) => (
             <tr key={r.email}>
               <td className="font-semibold">{r.name}</td>
               <td>{r.role}</td>
@@ -81,7 +86,7 @@ const DocumentControl = () => {
           <tr><th>Name</th><th>Role</th></tr>
         </thead>
         <tbody>
-          {documentControl.distribution.map((d) => (
+          {distribution.map((d: any) => (
             <tr key={d.name}>
               <td className="font-semibold">{d.name}</td>
               <td>{d.role}</td>

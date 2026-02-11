@@ -1,6 +1,7 @@
 import React from "react";
 import ReportPage from "./ReportPage";
-import { networkAssets } from "@/data/reportData";
+import EmptyState from "./EmptyState";
+import { Server } from "lucide-react";
 
 const riskBg: Record<string, string> = {
   Critical: "border-l-4 border-l-[hsl(0,84%,60%)]",
@@ -16,21 +17,25 @@ const riskColor: Record<string, string> = {
   Low: "severity-low",
 };
 
-const HostSummary = () => {
-  const half = Math.ceil(networkAssets.length / 2);
-  const page1 = networkAssets.slice(0, half);
-  const page2 = networkAssets.slice(half);
+const HostSummary = ({ data, meta }: { data: any; meta?: any }) => {
+  const assets = (Array.isArray(data) ? data : (data?.assets || []));
+  const title = data?.title || "Host-Level Summary";
+  const description = data?.description || "Detailed per-host security assessment results showing identified vulnerabilities, open services, and overall risk classification for each assessed system.";
 
-  const HostTable = ({ assets }: { assets: typeof networkAssets }) => (
-    <div className="space-y-2">
+  const half = Math.ceil(assets.length / 2);
+  const page1 = assets.slice(0, half);
+  const page2 = assets.slice(half);
+
+  const HostTable = ({ assets }: { assets: any[] }) => (
+    <div className="grid grid-cols-1 gap-2 mb-8">
       {assets.map((a) => (
-        <div key={a.ip} className={`p-3 rounded-lg bg-[hsl(var(--obsera-surface))] ${riskBg[a.risk]}`}>
+        <div key={a.ip} className={`p-3 rounded-lg bg-[hsl(var(--obsera-surface))] ${riskBg[a.risk] || ''}`}>
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
               <span className="font-mono-ibm text-[hsl(var(--obsera-cyan))] text-xs font-bold">{a.ip}</span>
               <span className="font-mono-jb text-xs text-muted-foreground">({a.hostname})</span>
             </div>
-            <span className={`${riskColor[a.risk]} px-2 py-0.5 rounded text-[8px] font-bold uppercase`}>
+            <span className={`${riskColor[a.risk] || 'severity-info'} px-2 py-0.5 rounded text-[8px] font-bold uppercase`}>
               {a.risk}
             </span>
           </div>
@@ -49,7 +54,7 @@ const HostSummary = () => {
             </div>
             <div>
               <span className="text-muted-foreground uppercase tracking-wider">Vulns</span>
-              <div className="font-mono-ibm font-bold text-[hsl(var(--obsera-cyan))]">{a.vulns}</div>
+              <div className="font-mono-ibm font-bold text-[hsl(193,82%,31%)]">{a.vulns}</div>
             </div>
           </div>
         </div>
@@ -59,20 +64,46 @@ const HostSummary = () => {
 
   return (
     <>
-      <ReportPage pageNum={38} sectionTitle="Host-Level Summary">
-        <h2 className="text-2xl font-bold text-[hsl(var(--obsera-cyan))] mb-6 section-accent">
-          Host-Level Summary
-        </h2>
-        <p className="text-xs text-muted-foreground mb-4 leading-relaxed">
-          Detailed per-host security assessment results showing identified vulnerabilities, open services,
-          and overall risk classification for each assessed system.
-        </p>
-        <HostTable assets={page1} />
-      </ReportPage>
+      {assets.length === 0 ? (
+        <ReportPage pageNum={38} sectionTitle={title} meta={meta}>
+          <h2 className="text-2xl font-bold text-[hsl(var(--obsera-cyan))] mb-6 section-accent">
+            {title}
+          </h2>
+          <EmptyState message="No network assets data available" icon={<Server size={32} />} height="300px" />
+        </ReportPage>
+      ) : (
+        (() => {
+          const firstPageSize = 10;
+          const subsequentPageSize = 12;
+          const chunks = [];
 
-      <ReportPage pageNum={39} sectionTitle="Host-Level Summary">
-        <HostTable assets={page2} />
-      </ReportPage>
+          // First chunk
+          chunks.push(assets.slice(0, firstPageSize));
+
+          // Subsequent chunks
+          for (let i = firstPageSize; i < assets.length; i += subsequentPageSize) {
+            chunks.push(assets.slice(i, i + subsequentPageSize));
+          }
+
+          return chunks.map((chunk, idx) => (
+            <ReportPage key={idx} pageNum={38 + idx} sectionTitle={idx === 0 ? title : `${title} (Cont.)`} meta={meta} showFooter={idx === 0}>
+              {idx === 0 && (
+                <>
+                  <h2 className="text-2xl font-bold text-[hsl(193,82%,31%)] mb-6 section-accent">
+                    {title}
+                  </h2>
+                  <p className="text-xs text-muted-foreground mb-4 leading-relaxed">
+                    {description}
+                  </p>
+                </>
+              )}
+              <div className={idx > 0 ? "pt-2" : ""}>
+                <HostTable assets={chunk} />
+              </div>
+            </ReportPage>
+          ));
+        })()
+      )}
     </>
   );
 };

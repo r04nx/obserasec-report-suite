@@ -1,0 +1,85 @@
+import { ObseraReportData } from "./reportData";
+
+export const emptyReportData: ObseraReportData = {
+    meta: {
+        title: "",
+        subtitle: "",
+        client: "",
+        clientIndustry: "",
+        assessmentId: "",
+        version: "",
+        classification: "",
+        date: "",
+        dateRange: "",
+        preparedBy: "",
+        platform: "",
+        company: "",
+        logoUrl: "",
+        coverUrl: "",
+    },
+    docControl: {
+        versions: [],
+        authors: [],
+        reviewers: [],
+        distribution: [],
+    },
+    toc: [],
+    execSummary: {
+        totalVulnerabilities: 0,
+        critical: 0,
+        high: 0,
+        medium: 0,
+        low: 0,
+        informational: 0,
+        overallRiskScore: 0,
+        systemsTested: 0,
+        systemsCompromised: 0,
+        riskStatement: "",
+    },
+    riskDashboard: {
+        title: "",
+    },
+    hostSummary: [],
+    scope: {
+        ipRanges: [],
+        tools: [],
+        timeline: [],
+    },
+    networkAssets: [],
+    subnets: [],
+    geoData: {
+        attackOrigins: [],
+        totalBlocked: 0,
+        uniqueIPs: 0,
+        c2Servers: 0,
+    },
+    findings: [],
+    trending: {
+        byPhase: [],
+        byService: [],
+        patchStatus: [],
+        riskExposure: [],
+    },
+    remediation: {
+        immediate: [],
+        shortTerm: [],
+        longTerm: [],
+    },
+    hostFindings: [],
+    complianceMapping: {
+        frameworks: [],
+    },
+    compliance: {
+        dpdp: {},
+        certin: {},
+        sebi: {},
+        rbi: {},
+    },
+    entityGraph: {
+        entities: [],
+        connections: [],
+    },
+    mermaidDiagram: {
+        diagramCode: "",
+    },
+};

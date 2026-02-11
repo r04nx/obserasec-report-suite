@@ -41,10 +41,10 @@
     /* Very light background for headers */
     --obsera-navy-deep: 210 40% 96%;
     /* Slightly darker */
-    --obsera-cyan: 190 100% 25%;
-    /* Darker cyan for text readability on light */
-    --obsera-cyan-dim: 190 80% 35%;
-    --obsera-teal: 174 72% 30%;
+    --obsera-cyan: 193 82% 31%;
+    /* Brand Deep Cyan */
+    --obsera-cyan-dim: 193 82% 25%;
+    --obsera-teal: 193 82% 31%;
     --obsera-surface: 0 0% 100%;
     /* White surface */
     --obsera-surface-elevated: 0 0% 98%;

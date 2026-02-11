@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+temp_report_*.html
+temp_report_*.pdf
+final_report.html
+render.log
+.venv
+.print_venv

@@ -1,73 +1,76 @@
-# Welcome to your Lovable project
+# ObseraOne Security Report Suite
 
-## Project info
+ObseraOne is a high-performance, dynamic security reporting engine designed to generate premium, audit-ready PDF reports from vulnerability scan data. It features a modern React-based visualization layer and a dedicated Puppeteer-based generation server.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## 🚀 Key Features
 
-## How can I edit this code?
+- **Dynamic Data Injection**: Supports multiple data ingestion methods (URL parameters, direct JSON URLs, and global object injection).
+- **Premium Aesthetics**: Built with a custom design system featuring HSL-tailored colors, glassmorphism, and high-fidelity data visualizations.
+- **Automated PDF Generation**: Fully integrated Puppeteer server that transforms web-based dashboards into pixel-perfect PDF documents.
+- **Compliance Templates**: Pre-built templates for **DPDP**, **CERT-In**, and **BFSI** (RBI/SEBI) regulatory frameworks.
+- **Interactive Visualizations**: High-performance charts for risk trending, vulnerability distribution, and network entity graphing.
 
-There are several ways of editing your application.
+## 🛠️ Tech Stack
 
-**Use Lovable**
+- **Core**: React 18, TypeScript, Vite
+- **Styling**: Tailwind CSS, CSS Variables (Custom Design System)
+- **Icons**: Lucide React
+- **Generation**: Puppeteer, Node.js (Vite + Express)
+- **Visuals**: Recharts, Mermaid.js, D3 (Force-directed graphs)
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+## 📦 Getting Started
 
-Changes made via Lovable will be committed automatically to this repo.
+### Prerequisites
 
-**Use your preferred IDE**
+- [Node.js](https://nodejs.org/) (v18+)
+- [pnpm](https://pnpm.io/) (recommended) or npm/yarn
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Installation
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```bash
+git clone <repository-url>
+cd obserasec_suite
+pnpm install
 ```
 
-**Edit a file directly in GitHub**
+### Running Locally
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+1. **Start the Development Server**:
+   ```bash
+   pnpm run dev
+   ```
+   *The report will be available at `http://localhost:5173/`.*
 
-**Use GitHub Codespaces**
+2. **Start the PDF Generation Server**:
+   ```bash
+   npx tsx src/server.ts
+   ```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## 📄 Generating Reports
 
-## What technologies are used for this project?
+The generation server provides an API to convert report data into PDFs.
 
-This project is built with:
+### PDF Generation API
+- **Endpoint**: `POST /generate`
+- **Body**: `{ "data": Object, "format": "pdf" }`
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+### URL-driven Mode
+You can view specific report states by appending query parameters:
+- `?demo=true`: Loads full mock data for demonstration.
+- `?dataUrl=/demo_report_data.json`: Loads data from a specific JSON endpoint.
+- `?type=dpdp`: Renders the DPDP compliance specific view.
 
-## How can I deploy this project?
+## 📊 Data Structure
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+The report expects a JSON payload matching the `ObseraReportData` interface. See `src/data/reportData.ts` for the full schema. A complete example is provided in:
+`public/demo_report_data.json`
 
-## Can I connect a custom domain to my Lovable project?
+## 🤝 Project Structure
 
-Yes, you can!
+- `src/components/report`: All individual report sections (Cover, Risk Dashboard, etc.).
+- `src/hooks/useReportData.ts`: Core logic for data ingestion and mapping.
+- `src/server.ts`: Puppeteer-based rendering and PDF conversion logic.
+- `src/index.css`: Implementation of the ObseraDesign system using Tailwind and HSL variables.
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+---
+© 2026 ObseraSEC Security. Confidential.

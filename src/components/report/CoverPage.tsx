@@ -1,30 +1,48 @@
 import React from "react";
-// import { reportMeta } from "@/data/reportData";
+import ReportPage from "./ReportPage";
 
-const reportMeta = {
-  client: "Acme Corporation Ltd.",
-  date: "9 February, 2026",
-  assessmentId: "OSEC-2026-0142",
-};
+interface CoverPageProps {
+  data: any;
+  meta?: any;
+}
 
-const CoverPage = () => {
-  // Debug log to check if reportMeta is available
-  console.log("CoverPage rendering. reportMeta:", reportMeta);
+const CoverPage = ({ data, meta }: CoverPageProps) => {
+  const metaData = meta || data?.meta;
+  const clientName = metaData?.client || "Acme Corporation Ltd.";
+  const reportDate = metaData?.date || "12 Feb 2026";
+  const assessmentId = metaData?.assessmentId || "OSEC-2026-0142";
 
-  if (!reportMeta) {
-    console.error("reportMeta is undefined or null!");
-    return <div className="text-red-500">Error: reportMeta missing</div>;
-  }
+  // helper to format title date as "February 2026"
+  const getTitleDate = (dateStr: string) => {
+    // console.log("CoverPage received date:", dateStr); 
+    if (!dateStr) return new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+    try {
+      // Check if it's already "Month Year" format
+      if (/^[A-Za-z]+ \d{4}$/.test(dateStr)) return dateStr;
+
+      const date = new Date(dateStr);
+      if (!isNaN(date.getTime())) {
+        return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+      }
+
+      const parts = dateStr.split(' ');
+      if (parts.length >= 2) return dateStr; // Return original if it looks like a date
+    } catch (e) {
+      console.warn("Date parse error", e);
+    }
+    return dateStr;
+  };
+
+  const titleDate = getTitleDate(reportDate);
 
   return (
-    <>
+    <ReportPage noPadding={true} showFooter={false} showHeader={false} showWatermark={false} meta={metaData}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@400;600&display=swap');
-
         .raw-cover-page {
             width: 210mm;
             height: 297mm;
-            background-image: url('/assets/cover_bg.png');
+            background-image: url('${metaData?.coverUrl || "/assets/cover_bg.png"}');
             background-size: cover;
             background-position: center;
             position: relative;
@@ -40,7 +58,7 @@ const CoverPage = () => {
         .issued-in {
             position: absolute;
             top: 123px;
-            right: 20px;
+            right: 15px;
             text-align: right;
             font-family: 'IBM Plex Sans Condensed', sans-serif;
             font-size: 14pt;
@@ -65,9 +83,6 @@ const CoverPage = () => {
             line-height: 1;
             margin: 0;
             letter-spacing: -1.5px;
-            /* Template HTML does not force uppercase, but Title Case. 
-               However, to match the visual provided in the template HTML (which has Title Case text), 
-               we will render the client name as is. */
         }
 
         .title-date {
@@ -122,7 +137,7 @@ const CoverPage = () => {
 
       <div className="raw-cover-page page-break">
         <div className="issued-in">
-          <span className="issued-label"></span> {reportMeta.date}
+          <span className="font-bold mr-1"></span> {reportDate}
         </div>
 
         {/* Minimal Curves - Even more subtle */}
@@ -130,10 +145,9 @@ const CoverPage = () => {
           <path d="M 500 0 C 400 50 100 150 0 500" fill="none" stroke="white" strokeWidth="1" />
         </svg>
 
-
         <div className="title-container">
-          <h1 className="report-title">{reportMeta.client}</h1>
-          <div className="title-date">{reportMeta.date}</div>
+          <h1 className="report-title">{clientName}</h1>
+          <div className="title-date">{titleDate}</div>
 
           <div className="assessment-label">
             <span className="faint-text">Security</span>
@@ -141,17 +155,17 @@ const CoverPage = () => {
             <div className="accent-line"></div>
           </div>
           <div className="assessment-label" style={{ marginTop: '10px' }}>
-            <span className="faint-text">DPDP</span>
-            <span className="main-text">Compliance Report</span>
+            <span className="faint-text">Infrastructure</span>
+            <span className="main-text">& Compliance</span>
             <div className="accent-line"></div>
           </div>
         </div>
 
         <div className="doc-id">
-          ID: {reportMeta.assessmentId}
+          ID: {assessmentId}
         </div>
       </div>
-    </>
+    </ReportPage>
   );
 };
 

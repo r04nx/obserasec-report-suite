@@ -1,16 +1,17 @@
 import React from "react";
 import ReportPage from "./ReportPage";
-import { tocSections } from "@/data/reportData";
 
-const TableOfContents = () => {
+const TableOfContents = ({ data, meta }: { data?: any[]; meta?: any }) => {
+  const sections = data || [];
+
   return (
-    <ReportPage pageNum={3} sectionTitle="Table of Contents">
+    <ReportPage pageNum={3} sectionTitle="Table of Contents" meta={meta}>
       <h2 className="text-2xl font-bold text-[hsl(var(--obsera-cyan))] mb-8 section-accent">
         Table of Contents
       </h2>
 
       <div className="space-y-1">
-        {tocSections.map((s) => {
+        {sections.map((s) => {
           const isMain = !s.num.includes(".");
           return (
             <div
@@ -19,8 +20,8 @@ const TableOfContents = () => {
             >
               <span
                 className={`font-mono-ibm shrink-0 ${isMain
-                    ? "text-[hsl(var(--obsera-cyan))] font-bold text-sm"
-                    : "text-muted-foreground text-xs"
+                  ? "text-[hsl(var(--obsera-cyan))] font-bold text-sm"
+                  : "text-muted-foreground text-xs"
                   }`}
               >
                 {s.num}

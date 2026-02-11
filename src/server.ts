@@ -13,101 +13,110 @@ import os from 'os';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const numCPUs = os.cpus().length;
+const numCPUs = Math.min(os.cpus().length, 2); // Cap at 2 workers for local stability with Puppeteer
+
+const VITE_SERVER_URL = process.env.VITE_SERVER_URL || 'http://localhost:8080';
 
 // Report generation logic (shared but executed per worker)
-const handleReportRequest = async (payload: any, res: express.Response) => {
+const handleReportRequest = async (payload: any, res: express.Response, queryParams: any = {}) => {
     try {
         // Use a unique ID for temp files - include worker PID to avoid collisions
         const requestId = `${process.pid}_${Date.now()}`;
-        const htmlFilename = `temp_report_${requestId}.html`;
         const pdfFilename = `temp_report_${requestId}.pdf`;
 
-        // Prepare config
-        const config = {
-            ...defaultConfig,
-            meta: {
-                ...defaultConfig.meta,
-                ...payload.meta
-            },
-            output: {
-                ...defaultConfig.output,
-                filename: htmlFilename
-            }
-        };
+        console.log(`📊 [Worker ${process.pid}] Preparing report for PDF conversion...`);
 
-        // Inject cover image absolute path if needed
-        // Fix: Convert to Base64 to ensure it loads in PDF
-        if (!config.meta.coverUrl || (typeof config.meta.coverUrl === 'string' && !config.meta.coverUrl.startsWith('file://') && !config.meta.coverUrl.startsWith('http') && !config.meta.coverUrl.startsWith('data:'))) {
-            try {
-                // Try multiple paths to find the asset
-                const possiblePaths = [
-                    path.join(process.cwd(), 'public', 'assets', 'cover_bg.png'),
-                    path.join(process.cwd(), 'dist', 'client', 'assets', 'cover_bg.png'),
-                    path.join(__dirname, '../public/assets/cover_bg.png')
-                ];
+        // Strategy selection: 
+        // 1. If we want to use the Vite dev server for rendering (max fidelity)
+        // 2. Otherwise use the standalone comprehensiveRenderer
 
-                let coverBgPath = '';
-                for (const p of possiblePaths) {
-                    if (fs.existsSync(p)) {
-                        coverBgPath = p;
-                        break;
-                    }
-                }
+        let sourceUrl: string;
 
-                if (coverBgPath) {
-                    const bitmap = fs.readFileSync(coverBgPath);
-                    const base64Image = Buffer.from(bitmap).toString('base64');
-                    // Ensure proper MIME type is prepended
-                    config.meta.coverUrl = `data:image/png;base64,${base64Image}`;
-                    console.log(`🖼️  [Worker ${process.pid}] Injected Base64 cover from: ${coverBgPath}`);
+        if (process.env.USE_VITE_RENDER === 'true' || queryParams.vitesource === 'true' || true) { // Defaulting to true for now as requested
+            // Use Vite server. Construct URL with parameters
+            const url = new URL(VITE_SERVER_URL);
+            url.searchParams.set('print', 'true');
+            if (queryParams.demo) url.searchParams.set('demo', 'true');
+            if (queryParams.type) url.searchParams.set('type', queryParams.type);
+
+            // If we have a payload and NOT in demo mode, we might need a way to pass it.
+            // For now, let's support it via dataurl or data parameter if it's small enough.
+            if (!queryParams.demo && payload) {
+                const dataString = JSON.stringify(payload);
+                if (dataString.length < 4000) { // URL length limit safe range
+                    url.searchParams.set('data', encodeURIComponent(dataString));
                 } else {
-                    console.warn(`⚠️  Cover image not found in any checked paths: ${possiblePaths.join(', ')}`);
+                    // Too large for GET - for now, we'd need a temp file or the standalone renderer
+                    console.warn(`⚠️ [Worker ${process.pid}] Payload too large for Vite GET, falling back to local renderer`);
+                    return await handleStandaloneRender(payload, res, requestId);
                 }
-            } catch (err) {
-                console.error("Failed to load cover image:", err);
             }
+            sourceUrl = url.toString();
+        } else {
+            return await handleStandaloneRender(payload, res, requestId);
         }
 
-        const customData = { ...payload };
-
-        // 1. Generate HTML
-        console.log(`📊 [Worker ${process.pid}] Generating HTML...`);
-        const result = await generateReport(config, customData);
-
-        if (!result || !result.success) {
-            throw new Error("Failed to generate HTML report");
-        }
-
-        // 2. Generate PDF
-        console.log(`📄 [Worker ${process.pid}] Converting to PDF...`);
-        // Pass a longer timeout for production robustness (2 mins)
-        const pdfPath = await generatePDF(htmlFilename, pdfFilename, 120000);
+        // 2. Generate PDF via Puppeteer hitting Vite
+        console.log(`📄 [Worker ${process.pid}] Converting URL to PDF: ${sourceUrl}`);
+        const pdfPath = await generatePDF(sourceUrl, pdfFilename, 120000);
 
         // 3. Stream PDF back to client
-        console.log(`🚀 [Worker ${process.pid}] Streaming PDF response...`);
-        res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', 'inline; filename=security_report.pdf');
-
-        const fileStream = fs.createReadStream(pdfPath);
-        fileStream.pipe(res);
-
-        // Cleanup temp files after stream ends
-        fileStream.on('close', () => {
-            try {
-                if (fs.existsSync(result.outputPath)) fs.unlinkSync(result.outputPath);
-                if (fs.existsSync(pdfPath)) fs.unlinkSync(pdfPath);
-            } catch (e) {
-                console.error(`[Worker ${process.pid}] Error cleaning up:`, e);
-            }
-        });
-
+        await streamFileAndCleanup(pdfPath, res, []);
     } catch (error) {
         console.error(`❌ [Worker ${process.pid}] Error processing request:`, error);
         if (!res.headersSent) {
-            res.status(500).json({ error: "Failed to generate report", details: error.message });
+            res.status(500).json({
+                error: "Failed to generate report",
+                details: error.message,
+                stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+            });
         }
     }
+};
+
+// Standalone renderer fallback
+const handleStandaloneRender = async (payload: any, res: express.Response, requestId: string) => {
+    const htmlFilename = `temp_report_${requestId}.html`;
+    const pdfFilename = `temp_report_${requestId}.pdf`;
+
+    const config = {
+        ...defaultConfig,
+        meta: { ...defaultConfig.meta, ...payload.meta },
+        output: { ...defaultConfig.output, filename: htmlFilename }
+    };
+
+    // Inject base64 cover
+    const coverBgPath = path.resolve(process.cwd(), 'public/assets/cover_bg.png');
+    if (fs.existsSync(coverBgPath)) {
+        const base64Image = Buffer.from(fs.readFileSync(coverBgPath)).toString('base64');
+        config.meta.coverUrl = `data:image/png;base64,${base64Image}`;
+    }
+
+    const result = await generateReport(config, payload);
+    const pdfPath = await generatePDF(htmlFilename, pdfFilename, 120000);
+
+    await streamFileAndCleanup(pdfPath, res, [result.outputPath]);
+};
+
+// Common streaming logic
+const streamFileAndCleanup = async (filePath: string, res: express.Response, extraFiles: string[]) => {
+    console.log(`🚀 [Worker ${process.pid}] Streaming response...`);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'inline; filename=security_report.pdf');
+
+    const fileStream = fs.createReadStream(filePath);
+    fileStream.pipe(res);
+
+    fileStream.on('close', () => {
+        try {
+            if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+            extraFiles.forEach(f => {
+                if (fs.existsSync(f)) fs.unlinkSync(f);
+            });
+        } catch (e) {
+            console.error(`[Worker ${process.pid}] Error cleaning up:`, e);
+        }
+    });
 };
 
 if (cluster.isPrimary) {
@@ -135,7 +144,7 @@ if (cluster.isPrimary) {
 
     app.post('/api/generate-report', async (req, res) => {
         console.log(`📩 [Worker ${process.pid}] Received POST request`);
-        await handleReportRequest(req.body, res);
+        await handleReportRequest(req.body, res, req.query);
     });
 
     app.get('/api/generate-report', async (req, res) => {
@@ -166,10 +175,12 @@ if (cluster.isPrimary) {
             } else if (dataParam) {
                 payload = JSON.parse(decodeURIComponent(dataParam));
             } else {
+                // Return 400 or just empty payload for demo? User might want default report.
+                // Let's stick to requiring one for now or default to demo if prompted.
                 return res.status(400).json({ error: "Missing 'data' or 'dataurl' query parameter" });
             }
 
-            await handleReportRequest(payload, res);
+            await handleReportRequest(payload, res, req.query);
         } catch (e) {
             console.error(`❌ [Worker ${process.pid}] GET Error:`, e);
             res.status(400).json({ error: "Invalid request", details: e.message });
